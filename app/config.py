@@ -136,15 +136,17 @@ class Config(object):
     ADMIN_CLIENT_USER_NAME = 'notify-admin'
     AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
     AWS_ROUTE53_ZONE = os.getenv("AWS_ROUTE53_ZONE", "Z2OW036USASMAK")
+    AWS_SNS_REGION = os.getenv("AWS_SNS_REGION")
+    AWS_S3_REGION = os.getenv("AWS_S3_REGION")
     AWS_SES_REGION = os.getenv("AWS_SES_REGION", "us-east-1")
     AWS_SES_SMTP = os.getenv("AWS_SES_SMTP", "email-smtp.us-east-1.amazonaws.com")
     AWS_SES_ACCESS_KEY = os.getenv('AWS_SES_ACCESS_KEY')
     AWS_SES_SECRET_KEY = os.getenv('AWS_SES_SECRET_KEY')
     AWS_PINPOINT_APP_ID = os.getenv('AWS_PINPOINT_APP_ID')
     AWS_PINPOINT_KEYWORD = os.getenv('AWS_PINPOINT_KEYWORD')
-    CSV_UPLOAD_BUCKET_NAME = os.getenv('CSV_UPLOAD_BUCKET_NAME', 'notification-alpha-canada-ca-csv-upload')
-    ASSET_UPLOAD_BUCKET_NAME = os.getenv('ASSET_UPLOAD_BUCKET_NAME', 'notification-alpha-canada-ca-asset-upload')
-    ASSET_DOMAIN = os.getenv('ASSET_DOMAIN', 's3.amazonaws.com')
+    CSV_UPLOAD_BUCKET_NAME = os.getenv('CSV_UPLOAD_BUCKET_NAME', 'notification-gouv-qc-ca-csv-upload')
+    ASSET_UPLOAD_BUCKET_NAME = os.getenv('ASSET_UPLOAD_BUCKET_NAME', 'notification-gouv-qc-ca-asset-upload')
+    ASSET_DOMAIN = os.getenv('ASSET_DOMAIN', 's3.ca-central-1.amazonaws.com')
     INVITATION_EXPIRATION_DAYS = 2
     NOTIFY_APP_NAME = 'api'
     SQLALCHEMY_RECORD_QUERIES = False
@@ -396,11 +398,13 @@ class Development(Config):
     MMG_INBOUND_SMS_USERNAME = ['username']
 
     NOTIFY_ENVIRONMENT = 'development'
-    NOTIFICATION_QUEUE_PREFIX = os.getenv("NOTIFICATION_QUEUE_PREFIX", "notification-canada-ca")
-    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "notification.alpha.canada.ca")
+    NOTIFICATION_QUEUE_PREFIX = os.getenv("NOTIFICATION_QUEUE_PREFIX", "notification-test-pgn-")
+    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "cspq.gouv.qc.ca")
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", 'postgresql://postgres@localhost/notification_api')
-    REDIS_URL = 'redis://localhost:6379/0'
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", 'postgresql://postgres:Postgres@db-pgn/notification_api')
+
+    REDIS_URL='redis://msg-queue:6379/0'
+    BROKER_URL = REDIS_URL
 
     ANTIVIRUS_ENABLED = os.getenv('ANTIVIRUS_ENABLED') == '1'
 
@@ -409,7 +413,7 @@ class Development(Config):
             Queue(queue, Exchange('default'), routing_key=queue)
         )
 
-    API_HOST_NAME = "http://localhost:6011"
+    #API_HOST_NAME = "http://localhost:6011"
     API_RATE_LIMIT_ENABLED = True
 
 

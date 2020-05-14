@@ -84,3 +84,9 @@ jinja_templates/
 /.vs/slnx.sqlite
 /.vs/ProjectSettings.json
 /.vs/notification-api/v16/.suo
+/env-api
+/notification-api.pyproj
+/notification-api.pyproj.user
+/notification-api.sln
+/.vs
+/obj/Any CPU/Debug

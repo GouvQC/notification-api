@@ -11,11 +11,13 @@ RUN set -ex && mkdir /app
 
 WORKDIR /app
 
-COPY . /app
+COPY ./requirements.txt /app
+COPY ./requirements_for_test.txt /app
 
 RUN set -ex && pip3 install -r requirements.txt
 RUN set -ex && pip3 install -r requirements_for_test.txt
+RUN set -ex && pip3 install celery==4.2.0rc4
+
+COPY . /app
 
 RUN make generate-version-file
-
-ENV PORT=6011
