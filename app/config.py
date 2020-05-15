@@ -403,7 +403,7 @@ class Development(Config):
 
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", 'postgresql://postgres:Postgres@db-pgn/notification_api')
 
-    REDIS_URL='redis://msg-queue:6379/0'
+    REDIS_URL = os.getenv("REDIS_URL",'redis://localhost:6379/0')
     BROKER_URL = REDIS_URL
 
     ANTIVIRUS_ENABLED = os.getenv('ANTIVIRUS_ENABLED') == '1'
