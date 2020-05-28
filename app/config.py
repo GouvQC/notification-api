@@ -447,7 +447,7 @@ class Test(Development):
         )
 
     API_RATE_LIMIT_ENABLED = True
-    API_HOST_NAME = "http://127.0.0.1:6011"
+    API_HOST_NAME = "http://localhost:6011"
 
     SMS_INBOUND_WHITELIST = ['203.0.113.195']
     FIRETEXT_INBOUND_SMS_AUTH = ['testkey']
