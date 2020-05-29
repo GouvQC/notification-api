@@ -403,7 +403,7 @@ class Development(Config):
 
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", 'postgresql://postgres:Postgres@db-pgn/notification_api')
 
-    REDIS_URL = os.getenv("REDIS_URL",'redis://localhost:6379/0')
+    REDIS_URL = os.getenv("REDIS_URL", 'redis://localhost:6379/0')
     BROKER_URL = REDIS_URL
 
     ANTIVIRUS_ENABLED = os.getenv('ANTIVIRUS_ENABLED') == '1'
@@ -413,7 +413,7 @@ class Development(Config):
             Queue(queue, Exchange('default'), routing_key=queue)
         )
 
-    #API_HOST_NAME = "http://localhost:6011"
+    # API_HOST_NAME = "http://localhost:6011"
     API_RATE_LIMIT_ENABLED = True
 
 
