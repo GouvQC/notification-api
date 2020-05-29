@@ -466,9 +466,9 @@ def test_post_update_organisation_set_mou_emails_signed_by(
     for n in notifications:
         # we pass in the same personalisation for all templates (though some templates don't use all fields)
         assert n.personalisation == {
-            'mou_link': 'http://localhost:6012/agreement/non-crown.pdf',
+            'mou_link': 'http://127.0.0.1:6012/agreement/non-crown.pdf',
             'org_name': 'sample organisation',
-            'org_dashboard_link': 'http://localhost:6012/organisations/{}'.format(sample_organisation.id),
+            'org_dashboard_link': 'http://127.0.0.1:6012/organisations/{}'.format(sample_organisation.id),
             'signed_by_name': 'Test User',
             'on_behalf_of_name': on_behalf_of_name
         }
