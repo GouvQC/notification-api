@@ -25,6 +25,7 @@ TWILIO_AUTH_TOKEN='0'
 TWILIO_FROM_NUMBER='12345678'
 NOTIFY_ENVIRONMENT = 'development'
 </Environment>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
