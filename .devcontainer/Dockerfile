@@ -22,5 +22,5 @@ COPY . /app
 
 RUN make generate-version-file
 
-CMD flask db upgrade
+ENTRYPOINT flask db upgrade
 
