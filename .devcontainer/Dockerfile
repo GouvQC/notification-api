@@ -22,5 +22,5 @@ COPY . /app
 
 RUN make generate-version-file
 
-CMD ["./start.sh"]
+CMD flask db upgrade
 
