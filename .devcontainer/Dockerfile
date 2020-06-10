@@ -21,3 +21,5 @@ RUN set -ex && pip3 install celery==4.2.0rc4
 COPY . /app
 
 RUN make generate-version-file
+
+CMD flask db upgrade && flask run
