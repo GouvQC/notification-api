@@ -30,4 +30,4 @@ COPY [".devcontainer/start.sh", "start.sh"]
 RUN chmod +x start.sh
 RUN chmod g+w /etc/passwd
 
-ENTRYPOINT ["./start.sh"]
+CMD ["./start.sh"]
