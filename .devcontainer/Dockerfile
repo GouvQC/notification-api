@@ -22,6 +22,7 @@ COPY . /app
 
 RUN make generate-version-file
 
+
 EXPOSE 5000
 
 ENTRYPOINT flask db upgrade
