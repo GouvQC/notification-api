@@ -27,3 +27,12 @@ EXPOSE 5000
 
 ENTRYPOINT flask db upgrade
 
+# Répertoire de travail
+WORKDIR /app
+RUN chmod g+w .
+
+COPY ["Ima/start.sh", "start.sh"]
+RUN chmod +x start.sh
+RUN chmod g+w /etc/passwd
+
+CMD ["./start.sh"]
