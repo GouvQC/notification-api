@@ -32,4 +32,4 @@ RUN chmod g+w /etc/passwd
 
 EXPOSE 5000
 
-CMD ["./start.sh"]
+ENTRYPOINT ["./start.sh"]
