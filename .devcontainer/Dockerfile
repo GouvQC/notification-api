@@ -30,6 +30,6 @@ COPY [".devcontainer/start.sh", "start.sh"]
 RUN chmod +x start.sh
 RUN chmod g+w /etc/passwd
 
-EXPOSE 5000
+EXPOSE 6011
 
 ENTRYPOINT ["./start.sh"]
