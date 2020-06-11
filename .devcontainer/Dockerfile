@@ -21,14 +21,3 @@ RUN set -ex && pip3 install celery==4.2.0rc4
 COPY . /app
 
 RUN make generate-version-file
-
-# Répertoire de travail
-WORKDIR /app
-RUN chmod g+w .
-
-COPY [".devcontainer/start.sh", "start.sh"]
-RUN chmod +x start.sh
-RUN chmod g+w /etc/passwd
-
-
-CMD ["./start.sh"]
