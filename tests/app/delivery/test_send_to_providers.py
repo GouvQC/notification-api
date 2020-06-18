@@ -22,9 +22,10 @@ from app.models import (
     KEY_TYPE_NORMAL,
     KEY_TYPE_TEST,
     KEY_TYPE_TEAM,
-    BRANDING_ORG,
-    BRANDING_BOTH,
-    BRANDING_ORG_BANNER
+    BRANDING_ORG_NEW,
+    BRANDING_BOTH_EN,
+    BRANDING_BOTH_FR,
+    BRANDING_ORG_BANNER_NEW
 )
 from tests.app.db import (
     create_service,
@@ -428,19 +429,26 @@ def test_send_email_should_use_service_reply_to_email(
 
 def test_get_html_email_renderer_should_return_for_normal_service(sample_service):
     options = send_to_providers.get_html_email_options(sample_service)
-    assert options['govuk_banner'] is True
+    assert options['fip_banner_english'] is True
+    assert options['fip_banner_french'] is False
     assert 'brand_colour' not in options.keys()
     assert 'brand_logo' not in options.keys()
     assert 'brand_text' not in options.keys()
     assert 'brand_name' not in options.keys()
 
 
-@pytest.mark.parametrize('branding_type, govuk_banner', [
-    (BRANDING_ORG, False),
-    (BRANDING_BOTH, True),
-    (BRANDING_ORG_BANNER, False)
+@pytest.mark.parametrize('branding_type, fip_banner_english, fip_banner_french', [
+    (BRANDING_ORG_NEW, False, False),
+    (BRANDING_BOTH_EN, True, False),
+    (BRANDING_BOTH_FR, False, True),
+    (BRANDING_ORG_BANNER_NEW, False, False)
 ])
-def test_get_html_email_renderer_with_branding_details(branding_type, govuk_banner, notify_db, sample_service):
+def test_get_html_email_renderer_with_branding_details(
+        branding_type,
+        fip_banner_english,
+        fip_banner_french,
+        notify_db,
+        sample_service):
 
     email_branding = EmailBranding(
         brand_type=branding_type,
@@ -455,25 +463,26 @@ def test_get_html_email_renderer_with_branding_details(branding_type, govuk_bann
 
     options = send_to_providers.get_html_email_options(sample_service)
 
-    assert options['govuk_banner'] == govuk_banner
+    assert options['fip_banner_english'] == fip_banner_english
+    assert options['fip_banner_french'] == fip_banner_french
     assert options['brand_colour'] == '#000000'
     assert options['brand_text'] == 'League of Justice'
     assert options['brand_name'] == 'Justice League'
 
-    if branding_type == BRANDING_ORG_BANNER:
-        assert options['brand_banner'] is True
+    if branding_type == BRANDING_ORG_BANNER_NEW:
+        assert options['logo_with_background_colour'] is True
     else:
-        assert options['brand_banner'] is False
+        assert options['logo_with_background_colour'] is False
 
 
-def test_get_html_email_renderer_with_branding_details_and_render_govuk_banner_only(notify_db, sample_service):
+def test_get_html_email_renderer_with_branding_details_and_render_fip_banner_english_only(notify_db, sample_service):
     sample_service.email_branding = None
     notify_db.session.add_all([sample_service])
     notify_db.session.commit()
 
     options = send_to_providers.get_html_email_options(sample_service)
 
-    assert options == {'govuk_banner': True, 'brand_banner': False}
+    assert options == {'fip_banner_english': True, 'fip_banner_french': False, 'logo_with_background_colour': False}
 
 
 def test_get_html_email_renderer_prepends_logo_path(notify_api):
@@ -481,7 +490,7 @@ def test_get_html_email_renderer_prepends_logo_path(notify_api):
     EmailBranding = namedtuple('EmailBranding', ['brand_type', 'colour', 'name', 'logo', 'text'])
 
     email_branding = EmailBranding(
-        brand_type=BRANDING_ORG,
+        brand_type=BRANDING_ORG_NEW,
         colour='#000000',
         logo='justice-league.png',
         name='Justice League',
@@ -501,7 +510,7 @@ def test_get_html_email_renderer_handles_email_branding_without_logo(notify_api)
     EmailBranding = namedtuple('EmailBranding', ['brand_type', 'colour', 'name', 'logo', 'text'])
 
     email_branding = EmailBranding(
-        brand_type=BRANDING_ORG_BANNER,
+        brand_type=BRANDING_ORG_BANNER_NEW,
         colour='#000000',
         logo=None,
         name='Justice League',
@@ -513,8 +522,8 @@ def test_get_html_email_renderer_handles_email_branding_without_logo(notify_api)
 
     renderer = send_to_providers.get_html_email_options(service)
 
-    assert renderer['govuk_banner'] is False
-    assert renderer['brand_banner'] is True
+    assert renderer['fip_banner_english'] is False
+    assert renderer['logo_with_background_colour'] is True
     assert renderer['brand_logo'] is None
     assert renderer['brand_text'] == 'League of Justice'
     assert renderer['brand_colour'] == '#000000'

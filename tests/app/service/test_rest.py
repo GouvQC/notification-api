@@ -700,6 +700,16 @@ def test_update_service_remove_email_branding(admin_request, notify_db, sample_s
     assert resp['data']['email_branding'] is None
 
 
+def test_update_service_change_default_branding_language(admin_request, notify_db, sample_service):
+    resp = admin_request.post(
+        'service.update_service',
+        service_id=sample_service.id,
+        _data={'default_branding_is_french': True}
+    )
+
+    assert resp['data']['default_branding_is_french'] is True
+
+
 def test_update_service_change_email_branding(admin_request, notify_db, sample_service):
     brand1 = EmailBranding(colour='#000000', logo='justice-league.png', name='Justice League')
     brand2 = EmailBranding(colour='#111111', logo='avengers.png', name='Avengers')
@@ -2983,7 +2993,7 @@ def test_add_service_sms_sender_can_add_multiple_senders(client, notify_db_sessi
 
 def test_add_service_sms_sender_when_it_is_an_inbound_number_updates_the_only_existing_non_archived_sms_sender(
         client, notify_db_session):
-    service = create_service_with_defined_sms_sender(sms_sender_value='GOVUK')
+    service = create_service_with_defined_sms_sender(sms_sender_value='fip_english')
     create_service_sms_sender(service=service, sms_sender="archived", is_default=False, archived=True)
     inbound_number = create_inbound_number(number='12345')
     data = {
@@ -3009,7 +3019,7 @@ def test_add_service_sms_sender_when_it_is_an_inbound_number_updates_the_only_ex
 
 def test_add_service_sms_sender_when_it_is_an_inbound_number_inserts_new_sms_sender_when_more_than_one(
         client, notify_db_session):
-    service = create_service_with_defined_sms_sender(sms_sender_value='GOVUK')
+    service = create_service_with_defined_sms_sender(sms_sender_value='fip_english')
     create_service_sms_sender(service=service, sms_sender="second", is_default=False)
     inbound_number = create_inbound_number(number='12345')
     data = {

@@ -224,12 +224,15 @@ user_folder_permissions = db.Table(
 )
 
 
-BRANDING_GOVUK = 'govuk'  # Deprecated outside migrations
-BRANDING_ORG = 'org'
-BRANDING_BOTH = 'both'
-BRANDING_ORG_BANNER = 'org_banner'
+BRANDING_GOVUK = 'fip_english'  # Deprecated outside migrations
+BRANDING_ORG = 'org'  # Used in migrations only - do not remove or they will break
+BRANDING_ORG_BANNER = 'org_banner'  # Used in migrations only - do not remove or they will break
+BRANDING_ORG_NEW = 'custom_logo'  # Use this and BRANDING_ORG_BANNER_NEW for actual code
+BRANDING_BOTH_EN = 'both_english'
+BRANDING_BOTH_FR = 'both_french'
+BRANDING_ORG_BANNER_NEW = 'custom_logo_with_background_colour'
 BRANDING_NO_BRANDING = "no_branding"
-BRANDING_TYPES = [BRANDING_ORG, BRANDING_BOTH, BRANDING_ORG_BANNER, BRANDING_NO_BRANDING]
+BRANDING_TYPES = [BRANDING_ORG_NEW, BRANDING_BOTH_EN, BRANDING_BOTH_FR, BRANDING_ORG_BANNER_NEW, BRANDING_NO_BRANDING]
 
 
 class BrandingTypes(db.Model):
@@ -249,7 +252,7 @@ class EmailBranding(db.Model):
         db.ForeignKey('branding_type.name'),
         index=True,
         nullable=False,
-        default=BRANDING_ORG
+        default=BRANDING_ORG_NEW
     )
 
     def serialize(self):
@@ -370,6 +373,7 @@ class Organisation(db.Model):
     agreement_signed_on_behalf_of_email_address = db.Column(db.String(255), nullable=True)
     agreement_signed_version = db.Column(db.Float, nullable=True)
     crown = db.Column(db.Boolean, nullable=True)
+    default_branding_is_french = db.Column(db.Boolean, index=False, unique=False, nullable=False, default=False)
     organisation_type = db.Column(
         db.String(255),
         db.ForeignKey('organisation_types.name'),
@@ -415,6 +419,7 @@ class Organisation(db.Model):
             "name": self.name,
             "active": self.active,
             "crown": self.crown,
+            "default_branding_is_french": self.default_branding_is_french,
             "organisation_type": self.organisation_type,
             "letter_branding_id": self.letter_branding_id,
             "email_branding_id": self.email_branding_id,
@@ -464,6 +469,7 @@ class Service(db.Model, Versioned):
     email_from = db.Column(db.Text, index=False, unique=True, nullable=False)
     created_by_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), index=True, nullable=False)
     created_by = db.relationship('User', foreign_keys=[created_by_id])
+    default_branding_is_french = db.Column(db.Boolean, index=False, unique=False, nullable=False, default=False)
     prefix_sms = db.Column(db.Boolean, nullable=False, default=True)
     organisation_type = db.Column(
         db.String(255),
