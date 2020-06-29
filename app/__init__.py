@@ -98,7 +98,7 @@ def create_app(application):
     mmg_client.init_app(application, statsd_client=statsd_client)
     aws_sns_client.init_app(application, statsd_client=statsd_client)
     aws_pinpoint_client.init_app(application, statsd_client=statsd_client)
-    aws_ses_client.init_app(application.config['AWS_REGION'], statsd_client=statsd_client)
+    aws_ses_client.init_app(application.config['AWS_SES_REGION'], statsd_client=statsd_client)
     send_grid_client.init_app(application.config['SENDGRID_API_KEY'], statsd_client=statsd_client)
     twilio_sms_client.init_app(
         logger=application.logger,
