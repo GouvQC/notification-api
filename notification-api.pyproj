@@ -71,6 +71,9 @@ NOTIFY_ENVIRONMENT = 'development'
     <Compile Include="app\clients\sms\firetext.py" />
     <Compile Include="app\clients\sms\loadtesting.py" />
     <Compile Include="app\clients\sms\mmg.py" />
+    <Compile Include="app\clients\sms\sinch.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\clients\sms\twilio.py" />
     <Compile Include="app\clients\sms\__init__.py" />
     <Compile Include="app\clients\__init__.py" />
@@ -908,7 +911,6 @@ NOTIFY_ENVIRONMENT = 'development'
     <Content Include="app\__pycache__\utils.cpython-36.pyc" />
     <Content Include="app\__pycache__\version.cpython-36.pyc" />
     <Content Include="app\__pycache__\__init__.cpython-36.pyc" />
-    <Content Include="Certificats\RQ_CA.cer" />
     <Content Include="Certificats\RQ_CA.pem" />
     <Content Include="CHANGELOG.md" />
     <Content Include="ci\cloudbuild-builder.yaml" />
