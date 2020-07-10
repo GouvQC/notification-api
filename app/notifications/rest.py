@@ -118,6 +118,8 @@ def send_notification(notification_type):
             status_code=400
         )
 
+    email_additional_parameters = {"importance": notification_form.get('importance', None), "cc": notification_form.get('cc', None)} if notification_type == EMAIL_TYPE else {}
+
     if notification_type == SMS_TYPE:
         _service_can_send_internationally(authenticated_service, notification_form['to'])
     # Do not persist or send notification to the queue if it is a simulated recipient
@@ -133,7 +135,8 @@ def send_notification(notification_type):
                                               api_key_id=api_user.id,
                                               key_type=api_user.key_type,
                                               simulated=simulated,
-                                              reply_to_text=template.get_reply_to_text()
+                                              reply_to_text=template.get_reply_to_text(),
+                                              email_additional_parameters=email_additional_parameters
                                               )
     if not simulated:
         queue_name = QueueNames.PRIORITY if template.process_type == PRIORITY else None
