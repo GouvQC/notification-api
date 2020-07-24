@@ -193,7 +193,7 @@ def process_sms_or_email_notification(*, form, notification_type, api_key, templ
 
     personalisation = process_document_uploads(form.get('personalisation'), service, simulated=simulated)
 
-    additional_email_parameters ={"importance": form.get('importance', None), "cc_address": form.get('cc_address', None)}\
+    additional_email_parameters = {"importance": form.get('importance', None), "cc_address": form.get('cc_address', None)}\
        if notification_type == EMAIL_TYPE else {}
 
     notification = persist_notification(
