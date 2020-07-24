@@ -3,7 +3,6 @@ import os
 import urllib.request
 import magic
 import re
-import json
 
 from flask import current_app
 from notifications_utils.recipients import (
@@ -185,7 +184,8 @@ def send_email_to_provider(notification):
                 reply_to_address=validate_and_format_email_address(email_reply_to) if email_reply_to else None,
                 attachments=attachments,
                 importance=emails_parameters.get('importance', None),
-                cc_addresses=validate_and_format_email_address(emails_parameters.get('cc_address')) if emails_parameters.get('cc_address', None) else None
+                cc_addresses=validate_and_format_email_address(emails_parameters.get('cc_address'))\
+                        if emails_parameters.get('cc_address', None) else None
             )
             notification.reference = reference
             update_notification_to_sending(notification, provider)

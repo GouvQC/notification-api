@@ -96,7 +96,7 @@ def persist_notification(
         status=status,
         reply_to_text=reply_to_text,
         billable_units=billable_units,
-        additional_email_parameters = additional_email_parameters
+        additional_email_parameters=additional_email_parameters
     )
 
     if notification_type == SMS_TYPE:
