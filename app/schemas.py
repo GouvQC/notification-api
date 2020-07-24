@@ -301,7 +301,7 @@ class NotificationModelSchema(BaseSchema):
     class Meta:
         model = models.Notification
         strict = True
-        exclude = ('_personalisation', 'job', 'service', 'template', 'api_key',)
+        exclude = ('_personalisation', 'job', 'service', 'template', 'api_key')
 
     status = fields.String(required=False)
 

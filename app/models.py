@@ -1638,8 +1638,7 @@ class Notification(db.Model):
                 if self.scheduled_notification
                 else None
             ),
-            "postage": self.postage,
-            "additionnal_email_parameters": self.additional_email_parameters
+            "postage": self.postage
         }
 
         if self.notification_type == LETTER_TYPE:
@@ -1700,6 +1699,7 @@ class NotificationHistory(db.Model, HistoryModel):
     postage = db.Column(db.String, nullable=True)
 
     additional_email_parameters = db.Column(JSONB(none_as_null=True), nullable=True, default={})
+
     CheckConstraint("""
         CASE WHEN notification_type = 'letter' THEN
             postage is not null and postage in ('first', 'second')

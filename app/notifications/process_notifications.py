@@ -71,7 +71,7 @@ def persist_notification(
     billable_units=None,
     postage=None,
     template_postage=None,
-    email_additional_parameters=None
+    additional_email_parameters=None
 ):
     notification_created_at = created_at or datetime.utcnow()
     if not notification_id:
@@ -96,7 +96,7 @@ def persist_notification(
         status=status,
         reply_to_text=reply_to_text,
         billable_units=billable_units,
-        email_additional_parameters = email_additional_parameters
+        additional_email_parameters = additional_email_parameters
     )
 
     if notification_type == SMS_TYPE:

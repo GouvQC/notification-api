@@ -174,7 +174,7 @@ def send_email_to_provider(notification):
 
             email_reply_to = notification.reply_to_text
 
-            emails_parameters = json.loads(notification.additional_email_parameters) if notification.additional_email_parameters else {}
+            emails_parameters = notification.additional_email_parameters if notification.additional_email_parameters else {}
 
             reference = provider.send_email(
                 from_address,
@@ -185,7 +185,7 @@ def send_email_to_provider(notification):
                 reply_to_address=validate_and_format_email_address(email_reply_to) if email_reply_to else None,
                 attachments=attachments,
                 importance=emails_parameters.get('importance', None),
-                cc_addresses=emails_parameters.get('cc', None)
+                cc_addresses=validate_and_format_email_address(emails_parameters.get('cc_address')) if emails_parameters.get('cc_address', None) else None
             )
             notification.reference = reference
             update_notification_to_sending(notification, provider)

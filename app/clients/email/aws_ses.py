@@ -74,8 +74,8 @@ class AwsSesClient(EmailClient):
         try:
             if isinstance(to_addresses, str):
                 to_addresses = [to_addresses]
-
             if isinstance(cc_addresses, str):
+
                 cc_addresses = [cc_addresses]
 
             source = unidecode(source)
