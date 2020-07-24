@@ -1428,6 +1428,9 @@ class Notification(db.Model):
     reply_to_text = db.Column(db.String, nullable=True)
 
     postage = db.Column(db.String, nullable=True)
+
+    additional_email_parameters = db.Column(JSONB(none_as_null=True), nullable=True, default={})
+
     CheckConstraint("""
         CASE WHEN notification_type = 'letter' THEN
             postage is not null and postage in ('first', 'second')
@@ -1694,6 +1697,9 @@ class NotificationHistory(db.Model, HistoryModel):
     created_by_id = db.Column(UUID(as_uuid=True), nullable=True)
 
     postage = db.Column(db.String, nullable=True)
+
+    additional_email_parameters = db.Column(JSONB(none_as_null=True), nullable=True, default={})
+
     CheckConstraint("""
         CASE WHEN notification_type = 'letter' THEN
             postage is not null and postage in ('first', 'second')

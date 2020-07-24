@@ -11,7 +11,8 @@
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <LaunchProvider>Web launcher</LaunchProvider>
-    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <WebBrowserUrl>
+    </WebBrowserUrl>
     <OutputPath>.</OutputPath>
     <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
     <Name>notification-api</Name>
@@ -19,13 +20,30 @@
     <InterpreterId>MSBuild|env-api|$(MSBuildProjectFullPath)</InterpreterId>
     <TestFramework>Pytest</TestFramework>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <Environment>FLASK_APP = 'application.py'
+    <Environment>
+    </Environment>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+    <WebBrowserPort>
+    </WebBrowserPort>
+    <PythonRunWebServerCommand>
+    </PythonRunWebServerCommand>
+    <PythonRunWebServerCommandArguments>
+    </PythonRunWebServerCommandArguments>
+    <PythonRunWebServerCommandEnvironment>
+    </PythonRunWebServerCommandEnvironment>
+    <PythonDebugWebServerCommand>
+    </PythonDebugWebServerCommand>
+    <PythonDebugWebServerCommandArguments>flask run -p 6011 --host=0.0.0.0</PythonDebugWebServerCommandArguments>
+    <PythonDebugWebServerCommandEnvironment>SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost/notification_api'
+REDIS_URL='redis://localhost:6379/0'
+FLASK_APP = 'application.py'
 TWILIO_ACCOUNT_SID='123456'
 TWILIO_AUTH_TOKEN='0'
 TWILIO_FROM_NUMBER='12345678'
 NOTIFY_ENVIRONMENT = 'development'
-</Environment>
-    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+FLASK_DEBUG=1
+WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
+    <PythonDebugWebServerCommandType>script</PythonDebugWebServerCommandType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -545,6 +563,13 @@ NOTIFY_ENVIRONMENT = 'development'
     <Compile Include="migrations\versions\0305l_smtp_template.py" />
     <Compile Include="migrations\versions\0305m_add_pinpoint.py" />
     <Compile Include="migrations\versions\0305_add_gp_org_type.py" />
+    <Compile Include="migrations\versions\0306a_branding_variables_fix.py" />
+    <Compile Include="migrations\versions\0306b_branding_french_fip.py" />
+    <Compile Include="migrations\versions\0306c_branding_organisation.py" />
+    <Compile Include="migrations\versions\0306_branding_variables_rename.py" />
+    <Compile Include="migrations\versions\0308_add_email_parameters.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run_celery.py" />
     <Compile Include="scripts\delete_sqs_queues.py" />
     <Compile Include="scripts\fix_migrations.py" />

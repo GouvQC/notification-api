@@ -68,10 +68,15 @@ class AwsSesClient(EmailClient):
                    body,
                    html_body='',
                    reply_to_address=None,
-                   attachments=[]):
+                   attachments=[],
+                   importance=None,
+                   cc_addresses=None):
         try:
             if isinstance(to_addresses, str):
                 to_addresses = [to_addresses]
+            if isinstance(cc_addresses, str):
+
+                cc_addresses = [cc_addresses]
 
             source = unidecode(source)
 
@@ -82,6 +87,10 @@ class AwsSesClient(EmailClient):
             msg['Subject'] = subject
             msg['From'] = source
             msg['To'] = ",".join([punycode_encode_email(addr) for addr in to_addresses])
+            if importance:
+                msg.add_header('importance', importance)
+            if cc_addresses:
+                msg['CC'] = ",".join([punycode_encode_email(addr) for addr in cc_addresses])
             if reply_to_addresses != []:
                 msg.add_header('reply-to', ",".join([punycode_encode_email(addr) for addr in reply_to_addresses]))
             part = MIMEText(body, 'plain')
