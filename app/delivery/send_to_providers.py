@@ -173,6 +173,8 @@ def send_email_to_provider(notification):
 
             email_reply_to = notification.reply_to_text
 
+            emails_parameters = notification.additional_email_parameters if notification.additional_email_parameters else {}
+
             reference = provider.send_email(
                 from_address,
                 validate_and_format_email_address(notification.to),
@@ -180,7 +182,10 @@ def send_email_to_provider(notification):
                 body=str(plain_text_email),
                 html_body=str(html_email),
                 reply_to_address=validate_and_format_email_address(email_reply_to) if email_reply_to else None,
-                attachments=attachments
+                attachments=attachments,
+                importance=emails_parameters.get('importance', None),
+                cc_addresses=validate_and_format_email_address(emails_parameters.get(
+                    'cc_address')) if emails_parameters.get('cc_address', None) else None
             )
             notification.reference = reference
             update_notification_to_sending(notification, provider)
