@@ -185,7 +185,7 @@ def send_email_to_provider(notification):
                 attachments=attachments,
                 importance=emails_parameters.get('importance', None),
                 cc_addresses=validate_and_format_email_address(emails_parameters.get('cc_address'))
-                   if emails_parameters.get('cc_address', None) else None
+                    if emails_parameters.get('cc_address', None) else None
             )
             notification.reference = reference
             update_notification_to_sending(notification, provider)
