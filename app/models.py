@@ -1639,8 +1639,10 @@ class Notification(db.Model):
                 else None
             ),
             "postage": self.postage,
-            "importance": self.additional_email_parameters.get('importance', None) if self.notification_type == EMAIL_TYPE else None,
-            "cc_address": self.additional_email_parameters.get('cc_address', None) if self.notification_type == EMAIL_TYPE else None
+            "importance": self.additional_email_parameters.get(
+                'importance', None) if self.notification_type == EMAIL_TYPE else None,
+            "cc_address": self.additional_email_parameters.get(
+                'cc_address', None) if self.notification_type == EMAIL_TYPE else None
         }
 
         if self.notification_type == LETTER_TYPE:
