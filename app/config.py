@@ -138,7 +138,7 @@ class Config(object):
     AWS_ROUTE53_ZONE = os.getenv("AWS_ROUTE53_ZONE", "Z2OW036USASMAK")
     AWS_SNS_REGION = os.getenv("AWS_SNS_REGION")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION")
-    AWS_SES_REGION = os.getenv("AWS_SES_REGION", "us-east-1")
+    AWS_SES_REGION = os.getenv("AWS_SES_REGION", "ca-central-1")
     AWS_SES_SMTP = os.getenv("AWS_SES_SMTP", "email-smtp.us-east-1.amazonaws.com")
     AWS_SES_ACCESS_KEY = os.getenv('AWS_SES_ACCESS_KEY')
     AWS_SES_SECRET_KEY = os.getenv('AWS_SES_SECRET_KEY')
