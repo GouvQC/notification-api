@@ -184,7 +184,7 @@ post_email_request = {
         "personalisation": personalisation,
         "scheduled_for": {"type": ["string", "null"], "format": "datetime_within_next_day"},
         "email_reply_to_id": uuid,
-        "importance": {"type": "string", "enum": ["high","normal","low"]},
+        "importance": {"type": "string", "enum": ["high", "normal", "low"]},
         "cc_address": {"type": "string", "format": "email_address"},
     },
     "required": ["email_address", "template_id"],
