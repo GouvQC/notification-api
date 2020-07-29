@@ -1,6 +1,6 @@
 import newrelic.agent  # See https://bit.ly/2xBVKBH
 import os
-newrelic.agent.initialize() if os.getenv("NEW_RELIC") else {} # noqa: E402
+newrelic.agent.initialize() if os.getenv("NEW_RELIC",False) else {} # noqa: E402
 import sys
 import traceback
 

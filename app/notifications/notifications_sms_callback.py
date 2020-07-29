@@ -107,7 +107,7 @@ def process_sinch_response(notification_id):
     data = request.values
     errors = validate_callback_data(
         data=data,
-        fields=['MessageStatus', 'MessageSid'],
+        fields=['status'],
         client_name=client_name
     )
 
@@ -115,13 +115,13 @@ def process_sinch_response(notification_id):
         raise InvalidRequest(errors, status_code=400)
 
     success, errors = process_sms_client_response(
-        status=data.get('MessageStatus'),
+        status=data.get('status'),
         provider_reference=notification_id,
         client_name=client_name
     )
 
     redacted_data = dict(data.items())
-    redacted_data.pop('To', None)
+    redacted_data.pop('recipient', None)
     current_app.logger.debug(
         "Full delivery response from {} for notification: {}\n{}".format(client_name, notification_id, redacted_data))
     if errors:

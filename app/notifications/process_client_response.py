@@ -21,7 +21,8 @@ from app.models import NOTIFICATION_PENDING
 
 sms_response_mapper = {
     'MMG': get_mmg_responses,
-    'Firetext': get_firetext_responses
+    'Firetext': get_firetext_responses,
+    'Sinch': get_sinch_responses
 }
 
 

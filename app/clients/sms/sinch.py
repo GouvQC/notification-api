@@ -5,13 +5,14 @@ from time import monotonic
 from app.clients.sms import SmsClient
 
 sinch_response_map = {
-    'accepted': 'created',
-    'queued': 'sending',
-    'sending': 'sending',
-    'sent': 'sent',
-    'delivered': 'delivered',
-    'undelivered': 'permanent-failure',
-    'failed': 'technical-failure',
+    'Dispatched': 'created',
+    'Queued': 'sending',
+    'Delivered': 'delivered',
+    'Failed': 'permanent-failure',
+    'Rejected': 'permanent-failure',
+    'Aborted': 'permanent-failure',
+    'Expired': 'permanent-failure',
+    'Unknown': 'technical-failure',
 }
 
 def get_sinch_responses(status):
@@ -50,7 +51,6 @@ class SinchSMSClient(SmsClient):
             to = phonenumbers.format_number(match.number, phonenumbers.PhoneNumberFormat.E164)
 
             start_time = monotonic()
-            from_number = sender
             callback_url = "{}/notifications/sms/sinch/{}".format(
                 self._callback_notify_url_host, reference) if self._callback_notify_url_host else ""
             create = clx.xms.api.MtBatchTextSmsCreate()
@@ -65,21 +65,21 @@ class SinchSMSClient(SmsClient):
                 self.logger.info("Sinch send SMS request for {} succeeded: {}".format(reference, batch.batch_id))
             except (requests.exceptions.RequestException,
               clx.xms.exceptions.ApiException) as ex:
-                self.statsd_client.incr("clients.sns.error")
+                self.statsd_client.incr("clients.sinch.error")
                 self.logger.error("Failed to communicate with XMS: %s" % str(ex))
                 raise ex
             except Exception as e:
-                self.statsd_client.incr("clients.sns.error")
+                self.statsd_client.incr("clients.sinch.error")
                 self.logger.error("Sinch send SMS request for {} failed".format(reference))
                 raise e
             finally:
                 elapsed_time = monotonic() - start_time
                 self.logger.info("Sinch send SMS request for {} finished in {}".format(reference, elapsed_time))
-                self.statsd_client.timing("clients.sns.request-time", elapsed_time)
-                self.statsd_client.incr("clients.sns.success")
+                self.statsd_client.timing("clients.sinch.request-time", elapsed_time)
+                self.statsd_client.incr("clients.sinch.success")
                 return batch.batch_id
 
         if not matched:
-            self.statsd_client.incr("clients.sns.error")
+            self.statsd_client.incr("clients.sinch.error")
             self.logger.error("No valid numbers found in {}".format(to))
             raise ValueError("No valid numbers found for SMS delivery")
