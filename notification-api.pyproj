@@ -573,6 +573,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="migrations\versions\0308_add_email_parameters.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="migrations\versions\0309_add_sinch.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run_celery.py" />
     <Compile Include="scripts\delete_sqs_queues.py" />
     <Compile Include="scripts\fix_migrations.py" />

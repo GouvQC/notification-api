@@ -2,6 +2,7 @@ import clx.xms
 import requests
 import phonenumbers
 from time import monotonic
+from unidecode import unidecode
 from app.clients.sms import SmsClient
 
 sinch_response_map = {
@@ -56,7 +57,7 @@ class SinchSMSClient(SmsClient):
             create = clx.xms.api.MtBatchTextSmsCreate()
             create.sender = sender
             create.recipients = {to}
-            create.body = content
+            create.body = unidecode(content)
             create.client_reference = reference
             create.delivery_report = "per_recipient"
             create.callback_url = callback_url
