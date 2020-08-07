@@ -100,6 +100,7 @@ def process_twilio_response(notification_id):
     else:
         return jsonify(result='success', message=success), 200
 
+
 @sms_callback_blueprint.route('/sinch/<notification_id>', methods=['POST'])
 def process_sinch_response(notification_id):
     client_name = 'Sinch'

@@ -75,8 +75,8 @@ def test_provider_to_use(restore_provider_details):
     first = providers[0]
 
     # provider is pinpoint if sms and sender is set
-    #provider = send_to_providers.provider_to_use('sms', '1234', False, '+12345678901')
-    #assert "pinpoint" == provider.name
+    # provider = send_to_providers.provider_to_use('sms', '1234', False, '+12345678901')
+    # assert "pinpoint" == provider.name
 
     # provider is sinch if sms and sender is set to short code
     provider = send_to_providers.provider_to_use('sms', '1234', False, '244700')

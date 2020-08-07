@@ -111,7 +111,7 @@ def create_app(application):
     )
     sinch_sms_client.init_app(
         logger=application.logger,
-        callback_notify_url_host=application.config["API_HOST_NAME"],statsd_client=statsd_client
+        callback_notify_url_host=application.config["API_HOST_NAME"], statsd_client=statsd_client
     )
     notify_celery.init_app(application)
     encryption.init_app(application)
