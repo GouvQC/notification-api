@@ -9,6 +9,7 @@ from app.clients import ClientException
 from app.dao import notifications_dao
 from app.clients.sms.firetext import get_firetext_responses
 from app.clients.sms.mmg import get_mmg_responses
+from app.clients.sms.sinch import get_sinch_responses
 from app.celery.service_callback_tasks import (
     send_delivery_status_to_service,
     create_delivery_status_callback_data,
@@ -21,7 +22,8 @@ from app.models import NOTIFICATION_PENDING
 
 sms_response_mapper = {
     'MMG': get_mmg_responses,
-    'Firetext': get_firetext_responses
+    'Firetext': get_firetext_responses,
+    'Sinch': get_sinch_responses
 }
 
 

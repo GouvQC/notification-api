@@ -35,6 +35,7 @@ pwnedpasswords==2.0.0
 sendgrid==6.1.0
 tldextract==2.2.1
 twilio==6.16
+clx-sdk-xms==1.0.0
 nanoid==2.0.0
 unidecode==1.1.1
 

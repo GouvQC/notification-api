@@ -23,15 +23,16 @@ def test_get_provider_details_in_type_and_identifier_order(client, notify_db):
     )
     assert response.status_code == 200
     json_resp = json.loads(response.get_data(as_text=True))['provider_details']
-    assert len(json_resp) == 7
+    assert len(json_resp) == 8
 
     assert json_resp[0]['identifier'] == 'ses'
-    assert json_resp[1]['identifier'] == 'sns'
-    assert json_resp[2]['identifier'] == 'mmg'
-    assert json_resp[3]['identifier'] == 'firetext'
-    assert json_resp[4]['identifier'] == 'loadtesting'
-    assert json_resp[5]['identifier'] == 'pinpoint'
-    assert json_resp[6]['identifier'] == 'dvla'
+    assert json_resp[1]['identifier'] == 'sinch'
+    assert json_resp[2]['identifier'] == 'sns'
+    assert json_resp[3]['identifier'] == 'mmg'
+    assert json_resp[4]['identifier'] == 'firetext'
+    assert json_resp[5]['identifier'] == 'loadtesting'
+    assert json_resp[6]['identifier'] == 'pinpoint'
+    assert json_resp[7]['identifier'] == 'dvla'
 
 
 def test_get_provider_details_by_id(client, notify_db):
@@ -65,7 +66,7 @@ def test_get_provider_contains_correct_fields(client, sample_service, sample_tem
         "active", "updated_at", "supports_international",
         "current_month_billable_sms"
     }
-    assert len(json_resp) == 7
+    assert len(json_resp) == 8
     assert allowed_keys == set(json_resp[0].keys())
 
 

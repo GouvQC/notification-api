@@ -89,6 +89,9 @@ class Config(object):
     # Hosted graphite statsd prefix
     STATSD_PREFIX = os.getenv('STATSD_PREFIX')
 
+    # New_relic
+    NEW_RELIC = 'False'
+
     # Prefix to identify queues in SQS
     NOTIFICATION_QUEUE_PREFIX = os.getenv('NOTIFICATION_QUEUE_PREFIX')
 

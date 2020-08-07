@@ -89,6 +89,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="app\clients\sms\firetext.py" />
     <Compile Include="app\clients\sms\loadtesting.py" />
     <Compile Include="app\clients\sms\mmg.py" />
+    <Compile Include="app\clients\sms\sinch.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\clients\sms\twilio.py" />
     <Compile Include="app\clients\sms\__init__.py" />
     <Compile Include="app\clients\__init__.py" />
@@ -570,6 +573,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="migrations\versions\0308_add_email_parameters.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="migrations\versions\0309_add_sinch.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run_celery.py" />
     <Compile Include="scripts\delete_sqs_queues.py" />
     <Compile Include="scripts\fix_migrations.py" />
@@ -933,7 +939,6 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Content Include="app\__pycache__\utils.cpython-36.pyc" />
     <Content Include="app\__pycache__\version.cpython-36.pyc" />
     <Content Include="app\__pycache__\__init__.cpython-36.pyc" />
-    <Content Include="Certificats\RQ_CA.cer" />
     <Content Include="Certificats\RQ_CA.pem" />
     <Content Include="CHANGELOG.md" />
     <Content Include="ci\cloudbuild-builder.yaml" />
