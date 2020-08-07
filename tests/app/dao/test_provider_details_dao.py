@@ -38,7 +38,7 @@ def set_primary_sms_provider(identifier):
 
 def test_can_get_sms_non_international_providers(restore_provider_details):
     sms_providers = get_provider_details_by_notification_type('sms')
-    assert len(sms_providers) == 5
+    assert len(sms_providers) == 6
     assert all('sms' == prov.notification_type for prov in sms_providers)
 
 
@@ -122,7 +122,7 @@ def test_get_current_sms_provider_returns_correct_provider(restore_provider_deta
     assert provider.identifier == 'sns'
 
 
-@pytest.mark.parametrize('provider_identifier', ['mmg', 'sns'])
+@pytest.mark.parametrize('provider_identifier', ['sinch', 'sns'])
 def test_get_alternative_sms_provider_returns_expected_provider(notify_db, provider_identifier):
     provider = get_alternative_sms_provider(provider_identifier)
     assert provider.identifier != provider
@@ -311,34 +311,40 @@ def test_dao_get_provider_stats(notify_db_session):
 
     result = dao_get_provider_stats()
 
-    assert len(result) == 7
+    assert len(result) == 8
 
     assert result[0].identifier == 'ses'
     assert result[0].display_name == 'AWS SES'
     assert result[0].created_by_name is None
     assert result[0].current_month_billable_sms == 0
 
-    assert result[1].identifier == 'sns'
-    assert result[1].display_name == 'AWS SNS'
+    assert result[1].identifier == 'sinch'
+    assert result[1].notification_type == 'sms'
     assert result[1].supports_international is False
     assert result[1].active is True
-    assert result[1].current_month_billable_sms == 4
+    assert result[1].current_month_billable_sms == 0
 
-    assert result[2].identifier == 'mmg'
-    assert result[2].notification_type == 'sms'
-    assert result[2].supports_international is True
+    assert result[2].identifier == 'sns'
+    assert result[2].display_name == 'AWS SNS'
+    assert result[2].supports_international is False
     assert result[2].active is True
-    assert result[2].current_month_billable_sms == 5
+    assert result[2].current_month_billable_sms == 4
 
-    assert result[3].identifier == 'firetext'
-    assert result[3].current_month_billable_sms == 0
+    assert result[3].identifier == 'mmg'
+    assert result[3].notification_type == 'sms'
+    assert result[3].supports_international is True
+    assert result[3].active is True
+    assert result[3].current_month_billable_sms == 5
 
-    assert result[4].identifier == 'loadtesting'
+    assert result[4].identifier == 'firetext'
     assert result[4].current_month_billable_sms == 0
-    assert result[4].supports_international is False
 
-    assert result[5].identifier == 'pinpoint'
-    assert result[5].notification_type == 'sms'
-    assert result[5].supports_international is False
-    assert result[5].active is True
+    assert result[5].identifier == 'loadtesting'
     assert result[5].current_month_billable_sms == 0
+    assert result[5].supports_international is False
+
+    assert result[6].identifier == 'pinpoint'
+    assert result[6].notification_type == 'sms'
+    assert result[6].supports_international is False
+    assert result[6].active is True
+    assert result[6].current_month_billable_sms == 0

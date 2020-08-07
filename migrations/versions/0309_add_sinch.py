@@ -10,7 +10,7 @@ import uuid
 
 
 revision = '0309_add_sinch'
-down_revision = '0305l_add_email_parameters'
+down_revision = '0308_add_email_parameters'
 
 id = uuid.uuid4()
 
