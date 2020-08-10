@@ -54,8 +54,8 @@ class SinchSMSClient(SmsClient):
             to = phonenumbers.format_number(match.number, phonenumbers.PhoneNumberFormat.E164)
 
             start_time = monotonic()
-            callback_url = "{}/notifications/sms/sinch/{}".format(
-                self._callback_notify_url_host, reference) if self._callback_notify_url_host else ""
+            # callback_url = "{}/notifications/sms/sinch/{}".format(
+            #    self._callback_notify_url_host, reference) if self._callback_notify_url_host else ""
             create = clx.xms.api.MtBatchTextSmsCreate()
             create.sender = sender
             create.recipients = {to}
