@@ -8,7 +8,7 @@ from tests import create_authorization_header
 @pytest.mark.parametrize('extra_args, expected_start_of_invite_url', [
     (
         {},
-        'http://localhost:6012/invitation/'
+        'http://127.0.0.1:6012/invitation/'
     ),
     (
         {'invite_link_host': 'https://www.example.com'},

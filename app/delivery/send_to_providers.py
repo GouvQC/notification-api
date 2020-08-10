@@ -173,6 +173,8 @@ def send_email_to_provider(notification):
 
             email_reply_to = notification.reply_to_text
 
+            emails_parameters = notification.additional_email_parameters if notification.additional_email_parameters else {}
+
             reference = provider.send_email(
                 from_address,
                 validate_and_format_email_address(notification.to),
@@ -180,7 +182,10 @@ def send_email_to_provider(notification):
                 body=str(plain_text_email),
                 html_body=str(html_email),
                 reply_to_address=validate_and_format_email_address(email_reply_to) if email_reply_to else None,
-                attachments=attachments
+                attachments=attachments,
+                importance=emails_parameters.get('importance', None),
+                cc_addresses=validate_and_format_email_address(emails_parameters.get(
+                    'cc_address')) if emails_parameters.get('cc_address', None) else None
             )
             notification.reference = reference
             update_notification_to_sending(notification, provider)
@@ -194,7 +199,8 @@ def update_notification_to_sending(notification, provider):
     notification.sent_by = provider.get_name()
     # We currently have no callback method for SNS
     # notification.status = NOTIFICATION_SENT if notification.international else NOTIFICATION_SENDING
-    notification.status = NOTIFICATION_SENT if notification.notification_type == "sms" else NOTIFICATION_SENDING
+    notification.status = NOTIFICATION_SENT if notification.notification_type == SMS_TYPE and\
+      notification.sent_by == 'sns' else NOTIFICATION_SENDING
     dao_update_notification(notification)
 
 
@@ -209,8 +215,15 @@ def provider_to_use(notification_type, notification_id, international=False, sen
         )
         raise Exception("No active {} providers".format(notification_type))
 
-    if sender is not None and notification_type == SMS_TYPE and sender[0] == "+":
-        return clients.get_client_by_name_and_type("pinpoint", notification_type)
+    # Pour forcer l'utilisation de sinch avec un numéro abrege on utilise cette methode qui n est pas totalement sure
+    # Un numéro de 5 ou 6 chiffres forcera l'utilisation de sinch
+    if sender is not None and notification_type == SMS_TYPE and (
+        len(sender) <= 6 and len(sender) >= 5) and sender.isdecimal():
+        return clients.get_client_by_name_and_type("sinch", notification_type)
+
+    # Pour forcer l'utilisation de pinpoint avec un numéro de téléphone à 10 chiffres comme sender
+    # if sender is not None and notification_type == SMS_TYPE and sender[0] == "+":
+    #     return clients.get_client_by_name_and_type("pinpoint", notification_type)
 
     return clients.get_client_by_name_and_type(active_providers_in_order[0].identifier, notification_type)
 

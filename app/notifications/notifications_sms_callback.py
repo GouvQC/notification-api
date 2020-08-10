@@ -99,3 +99,33 @@ def process_twilio_response(notification_id):
         raise InvalidRequest(errors, status_code=400)
     else:
         return jsonify(result='success', message=success), 200
+
+
+@sms_callback_blueprint.route('/sinch/<notification_id>', methods=['POST'])
+def process_sinch_response(notification_id):
+    client_name = 'Sinch'
+
+    data = request.values
+    errors = validate_callback_data(
+        data=data,
+        fields=['status'],
+        client_name=client_name
+    )
+
+    if errors:
+        raise InvalidRequest(errors, status_code=400)
+
+    success, errors = process_sms_client_response(
+        status=data.get('status'),
+        provider_reference=notification_id,
+        client_name=client_name
+    )
+
+    redacted_data = dict(data.items())
+    redacted_data.pop('recipient', None)
+    current_app.logger.debug(
+        "Full delivery response from {} for notification: {}\n{}".format(client_name, notification_id, redacted_data))
+    if errors:
+        raise InvalidRequest(errors, status_code=400)
+    else:
+        return jsonify(result='success', message=success), 200

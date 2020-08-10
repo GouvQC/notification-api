@@ -73,6 +73,8 @@ def test_get_notification_by_id_returns_200(
         'completed_at': sample_notification.completed_at(),
         'scheduled_for': '2017-05-12T19:15:00.000000Z',
         'postage': None,
+        'importance': None,
+        'cc_address': None,
     }
 
     assert json_response == expected_response
@@ -125,6 +127,8 @@ def test_get_notification_by_id_with_placeholders_returns_200(
         'completed_at': sample_notification.completed_at(),
         'scheduled_for': None,
         'postage': None,
+        'importance': None,
+        'cc_address': None,
     }
 
     assert json_response == expected_response

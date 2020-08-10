@@ -1103,8 +1103,9 @@ FIRETEXT_PROVIDER = "firetext"
 SNS_PROVIDER = 'sns'
 PINPOINT_PROVIDER = 'pinpoint'
 SES_PROVIDER = 'ses'
+SINCH_PROVIDER = 'sinch'
 
-SMS_PROVIDERS = [MMG_PROVIDER, FIRETEXT_PROVIDER, SNS_PROVIDER, PINPOINT_PROVIDER]
+SMS_PROVIDERS = [MMG_PROVIDER, FIRETEXT_PROVIDER, SNS_PROVIDER, PINPOINT_PROVIDER, SINCH_PROVIDER]
 EMAIL_PROVIDERS = [SES_PROVIDER]
 PROVIDERS = SMS_PROVIDERS + EMAIL_PROVIDERS
 
@@ -1428,6 +1429,9 @@ class Notification(db.Model):
     reply_to_text = db.Column(db.String, nullable=True)
 
     postage = db.Column(db.String, nullable=True)
+
+    additional_email_parameters = db.Column(JSONB(none_as_null=True), nullable=True, default={})
+
     CheckConstraint("""
         CASE WHEN notification_type = 'letter' THEN
             postage is not null and postage in ('first', 'second')
@@ -1635,7 +1639,11 @@ class Notification(db.Model):
                 if self.scheduled_notification
                 else None
             ),
-            "postage": self.postage
+            "postage": self.postage,
+            "importance": self.additional_email_parameters.get(
+                'importance', None) if self.notification_type == EMAIL_TYPE else None,
+            "cc_address": self.additional_email_parameters.get(
+                'cc_address', None) if self.notification_type == EMAIL_TYPE else None
         }
 
         if self.notification_type == LETTER_TYPE:
@@ -1694,6 +1702,9 @@ class NotificationHistory(db.Model, HistoryModel):
     created_by_id = db.Column(UUID(as_uuid=True), nullable=True)
 
     postage = db.Column(db.String, nullable=True)
+
+    additional_email_parameters = db.Column(JSONB(none_as_null=True), nullable=True, default={})
+
     CheckConstraint("""
         CASE WHEN notification_type = 'letter' THEN
             postage is not null and postage in ('first', 'second')

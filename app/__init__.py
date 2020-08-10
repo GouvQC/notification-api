@@ -27,6 +27,7 @@ from app.clients.sms.mmg import MMGClient
 from app.clients.sms.aws_sns import AwsSnsClient
 from app.clients.sms.aws_pinpoint import AwsPinpointClient
 from app.clients.sms.twilio import TwilioSMSClient
+from app.clients.sms.sinch import SinchSMSClient
 from app.clients.performance_platform.performance_platform_client import PerformancePlatformClient
 from app.encryption import Encryption
 
@@ -64,6 +65,10 @@ twilio_sms_client = TwilioSMSClient(
     auth_token=os.getenv('TWILIO_AUTH_TOKEN'),
     from_number=os.getenv('TWILIO_FROM_NUMBER'),
 )
+sinch_sms_client = SinchSMSClient(
+    service_plan_id=os.getenv('SINCH_SERVICE_PLAN_ID'),
+    token=os.getenv('SINCH_TOKEN')
+)
 encryption = Encryption()
 zendesk_client = ZendeskClient()
 statsd_client = StatsdClient()
@@ -98,11 +103,15 @@ def create_app(application):
     mmg_client.init_app(application, statsd_client=statsd_client)
     aws_sns_client.init_app(application, statsd_client=statsd_client)
     aws_pinpoint_client.init_app(application, statsd_client=statsd_client)
-    aws_ses_client.init_app(application.config['AWS_REGION'], statsd_client=statsd_client)
+    aws_ses_client.init_app(application.config['AWS_SES_REGION'], statsd_client=statsd_client)
     send_grid_client.init_app(application.config['SENDGRID_API_KEY'], statsd_client=statsd_client)
     twilio_sms_client.init_app(
         logger=application.logger,
         callback_notify_url_host=application.config["API_HOST_NAME"]
+    )
+    sinch_sms_client.init_app(
+        logger=application.logger,
+        callback_notify_url_host=application.config["API_HOST_NAME"], statsd_client=statsd_client
     )
     notify_celery.init_app(application)
     encryption.init_app(application)
@@ -117,6 +126,7 @@ def create_app(application):
             aws_pinpoint_client,
             loadtest_client,
             twilio_sms_client,
+            sinch_sms_client,
         ],
         email_clients=[aws_ses_client, send_grid_client]
     )
