@@ -61,8 +61,8 @@ class SinchSMSClient(SmsClient):
             create.recipients = {to}
             create.body = unidecode(content)
             create.client_reference = reference
-            create.delivery_report = "per_recipient"
-            create.callback_url = callback_url
+            # create.delivery_report = "per_recipient"
+            # create.callback_url = callback_url
             try:
                 batch = self._client.create_batch(create)
                 self.logger.info("Sinch send SMS request for {} succeeded: {}".format(reference, batch.batch_id))
