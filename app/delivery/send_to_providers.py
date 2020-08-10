@@ -199,8 +199,8 @@ def update_notification_to_sending(notification, provider):
     notification.sent_by = provider.get_name()
     # We currently have no callback method for SNS
     # notification.status = NOTIFICATION_SENT if notification.international else NOTIFICATION_SENDING
-    notification.status = NOTIFICATION_SENT if notification.notification_type == SMS_TYPE and\
-                                               notification.sent_by == 'sns' else NOTIFICATION_SENDING
+    notification.status = NOTIFICATION_SENT if notification.notification_type == SMS_TYPE and \
+        notification.sent_by == 'sns' else NOTIFICATION_SENDING
     dao_update_notification(notification)
 
 
