@@ -16,8 +16,10 @@ sinch_response_map = {
     'Unknown': 'technical-failure',
 }
 
+
 def get_sinch_responses(status):
     return sinch_response_map[status]
+
 
 class SinchSMSClient(SmsClient):
     '''
@@ -32,7 +34,7 @@ class SinchSMSClient(SmsClient):
         self._token = token
         self._client = clx.xms.Client(service_plan_id, token)
 
-    def init_app(self, logger, callback_notify_url_host,statsd_client, *args, **kwargs):
+    def init_app(self, logger, callback_notify_url_host, statsd_client, *args, **kwargs):
         self.logger = logger
         self.statsd_client = statsd_client
         self._callback_notify_url_host = callback_notify_url_host
@@ -64,8 +66,7 @@ class SinchSMSClient(SmsClient):
             try:
                 batch = self._client.create_batch(create)
                 self.logger.info("Sinch send SMS request for {} succeeded: {}".format(reference, batch.batch_id))
-            except (requests.exceptions.RequestException,
-              clx.xms.exceptions.ApiException) as ex:
+            except (requests.exceptions.RequestException, clx.xms.exceptions.ApiException) as ex:
                 self.statsd_client.incr("clients.sinch.error")
                 self.logger.error("Failed to communicate with XMS: %s" % str(ex))
                 raise ex
