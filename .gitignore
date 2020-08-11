@@ -85,7 +85,6 @@ celerybeat-schedule
 jinja_templates/
 /env-api
 /notification-api.pyproj.user
-/notification-api.sln
 /.vs
 /obj/Any CPU/Debug
 /Certificats
