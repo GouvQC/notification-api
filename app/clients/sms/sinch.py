@@ -32,7 +32,7 @@ class SinchSMSClient(SmsClient):
         super(SinchSMSClient, self).__init__(*args, **kwargs)
         self._service_plan_id = service_plan_id
         self._token = token
-        self._client = clx.xms.Client(service_plan_id, token)
+        self._client = clx.xms.Client(service_plan_id, token, 'https://ca.sms.api.sinch.com/xms')
 
     def init_app(self, logger, callback_notify_url_host, statsd_client, *args, **kwargs):
         self.logger = logger
@@ -54,15 +54,15 @@ class SinchSMSClient(SmsClient):
             to = phonenumbers.format_number(match.number, phonenumbers.PhoneNumberFormat.E164)
 
             start_time = monotonic()
-            # callback_url = "{}/notifications/sms/sinch/{}".format(
-            #    self._callback_notify_url_host, reference) if self._callback_notify_url_host else ""
+            callback_url = "{}/notifications/sms/sinch/{}".format(
+                self._callback_notify_url_host, reference) if self._callback_notify_url_host else ""
             create = clx.xms.api.MtBatchTextSmsCreate()
             create.sender = sender
             create.recipients = {to}
             create.body = unidecode(content)
             create.client_reference = reference
-            # create.delivery_report = "per_recipient"
-            # create.callback_url = callback_url
+            create.delivery_report = "per_recipient"
+            create.callback_url = callback_url
             try:
                 batch = self._client.create_batch(create)
                 self.logger.info("Sinch send SMS request for {} succeeded: {}".format(reference, batch.batch_id))
