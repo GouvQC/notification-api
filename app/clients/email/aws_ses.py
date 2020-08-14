@@ -79,9 +79,9 @@ class AwsSesClient(EmailClient):
             if isinstance(cc_addresses, str):
                 cc_addresses = [cc_addresses]
 
-            source = unicodedata.normalize('NFKD',source)
+            source = unicodedata.normalize('NFKD', source)
             friendly_name, match_string, from_address = source.partition("<")
-            friendly_name = friendly_name.replace('"','')
+            friendly_name = friendly_name.replace('"', '')
             h = Header(friendly_name, 'utf-8')
             encoded_friendly_name = h.encode()
             encoded_source = '{} {}{}'.format(encoded_friendly_name, match_string, from_address)
