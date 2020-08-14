@@ -3,13 +3,14 @@ import botocore
 from flask import current_app
 from time import monotonic
 from notifications_utils.recipients import InvalidEmailError
-from unidecode import unidecode
+import unicodedata
 
 from app.clients import STATISTICS_DELIVERED, STATISTICS_FAILURE
 from app.clients.email import (EmailClientException, EmailClient)
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from email.header import Header
 
 ses_response_map = {
     'Permanent': {
@@ -57,6 +58,7 @@ class AwsSesClient(EmailClient):
         super(AwsSesClient, self).__init__(*args, **kwargs)
         self.name = 'ses'
         self.statsd_client = statsd_client
+        self.charset = 'utf-8'
 
     def get_name(self):
         return self.name
@@ -75,17 +77,21 @@ class AwsSesClient(EmailClient):
             if isinstance(to_addresses, str):
                 to_addresses = [to_addresses]
             if isinstance(cc_addresses, str):
-
                 cc_addresses = [cc_addresses]
 
-            source = unidecode(source)
+            source = unicodedata.normalize('NFKD',source)
+            friendly_name, match_string, from_address = source.partition("<")
+            friendly_name = friendly_name.replace('"','')
+            h = Header(friendly_name, 'utf-8')
+            encoded_friendly_name = h.encode()
+            encoded_source = '{} {}{}'.format(encoded_friendly_name, match_string, from_address)
 
             reply_to_addresses = [reply_to_address] if reply_to_address else []
 
             multipart_content_subtype = 'alternative' if html_body else 'mixed'
             msg = MIMEMultipart(multipart_content_subtype)
             msg['Subject'] = subject
-            msg['From'] = source
+            msg['From'] = encoded_source
             msg['To'] = ",".join([punycode_encode_email(addr) for addr in to_addresses])
             if importance:
                 msg.add_header('importance', importance)
@@ -93,11 +99,11 @@ class AwsSesClient(EmailClient):
                 msg['CC'] = ",".join([punycode_encode_email(addr) for addr in cc_addresses])
             if reply_to_addresses != []:
                 msg.add_header('reply-to', ",".join([punycode_encode_email(addr) for addr in reply_to_addresses]))
-            part = MIMEText(body, 'plain')
+            part = MIMEText(body.encode(self.charset), 'plain', self.charset)
             msg.attach(part)
 
             if html_body:
-                part = MIMEText(html_body, 'html')
+                part = MIMEText(html_body.encode(self.charset), 'html', self.charset)
                 msg.attach(part)
 
             for attachment in attachments or []:
