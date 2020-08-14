@@ -18,7 +18,7 @@ valid_post = [
         "Some subject",
         "Some content",
         (
-            '<p style="Margin: 0 0 20px 0; font-size: 19px; line-height: 25px; color: #0B0C0C;">'
+            '<p style="Margin: 0 0 20px 0; font-size: 11pt; line-height: 25px; color: #0B0C0C;">'
             'Some content'
             '</p>'
         ),
@@ -30,7 +30,7 @@ valid_post = [
         "Some subject",
         "Dear Jo, Hello. Yours Truly, The Government.",
         (
-            '<p style="Margin: 0 0 20px 0; font-size: 19px; line-height: 25px; color: #0B0C0C;">'
+            '<p style="Margin: 0 0 20px 0; font-size: 11pt; line-height: 25px; color: #0B0C0C;">'
             'Dear Jo, Hello. Yours Truly, The Government.'
             '</p>'
         ),
@@ -42,7 +42,7 @@ valid_post = [
         "Message for Jo",
         "Dear Jo, Hello. Yours Truly, The Government.",
         (
-            '<p style="Margin: 0 0 20px 0; font-size: 19px; line-height: 25px; color: #0B0C0C;">'
+            '<p style="Margin: 0 0 20px 0; font-size: 11pt; line-height: 25px; color: #0B0C0C;">'
             'Dear Jo, Hello. Yours Truly, The Government.'
             '</p>'
         ),
@@ -54,7 +54,7 @@ valid_post = [
         "Message for Jo",
         "Some content",
         (
-            '<p style="Margin: 0 0 20px 0; font-size: 19px; line-height: 25px; color: #0B0C0C;">'
+            '<p style="Margin: 0 0 20px 0; font-size: 11pt; line-height: 25px; color: #0B0C0C;">'
             'Some content'
             '</p>'
         ),
