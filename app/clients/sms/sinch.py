@@ -2,7 +2,6 @@ import clx.xms
 import requests
 import phonenumbers
 from time import monotonic
-from unidecode import unidecode
 import unicodedata
 from app.clients.sms import SmsClient
 
