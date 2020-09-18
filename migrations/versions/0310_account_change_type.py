@@ -9,7 +9,7 @@ from flask import current_app
 from alembic import op
 
 revision = '0310_account_change_type'
-down_revision = '0309_system_templates_priority'
+down_revision = '0309c_system_templates_priority'
 
 template = {
     'id': current_app.config['ACCOUNT_CHANGE_TEMPLATE_ID'],

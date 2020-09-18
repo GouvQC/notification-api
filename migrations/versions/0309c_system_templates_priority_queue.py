@@ -8,8 +8,8 @@ Create Date: 2020-08-04 12:50:00
 from alembic import op
 
 
-revision = '0309_system_templates_priority'
-down_revision = '0308_rename_service_whitelist'
+revision = '0309c_system_templates_priority'
+down_revision = '0309b_rename_service_whitelist'
 
 
 def upgrade():

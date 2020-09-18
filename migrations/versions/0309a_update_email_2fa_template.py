@@ -10,8 +10,8 @@ from datetime import datetime
 from alembic import op
 
 
-revision = '0307_update_email_2fa_template'
-down_revision = '0306c_branding_organisation'
+revision = '0309a_update_email_2fa_template'
+down_revision = '0309_add_sinch'
 
 template_id = '299726d2-dba6-42b8-8209-30e1d66ea164'
 
