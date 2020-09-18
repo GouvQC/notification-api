@@ -1,7 +1,6 @@
 import json
 import uuid
 from datetime import (datetime, timedelta)
-from urllib.parse import urlencode
 import base64
 import pickle
 import requests
@@ -112,7 +111,7 @@ def create_user():
     else:
         response = pwnedpasswords.check(password)
         if response > 0:
-            errors.update({'password': ['Password is blacklisted.']})
+            errors.update({'password': ['Password is not allowed.']})
             raise InvalidRequest(errors, status_code=400)
 
     save_model_user(user_to_create, pwd=req_json.get('password'))
@@ -138,8 +137,11 @@ def update_user_attribute(user_id):
     service = Service.query.get(current_app.config['NOTIFY_SERVICE_ID'])
 
     # Alert user that account change took place
-    change_type = update_dct_to_str(update_dct)
-    _update_alert(user_to_update, change_type)
+    user_alert_dct = update_dct.copy()
+    user_alert_dct.pop('blocked', None)
+    user_alert_dct.pop('current_session_id', None)
+    if user_alert_dct:
+        _update_alert(user_to_update, update_dct_to_str(user_alert_dct))
 
     # Alert that team member edit user
     if updated_by:
@@ -163,7 +165,7 @@ def update_user_attribute(user_id):
                 'name': user_to_update.name,
                 'servicemanagername': updated_by.name,
                 'email address': user_to_update.email_address,
-                'change_type': change_type
+                'change_type': update_dct_to_str(update_dct)
             },
             notification_type=template.template_type,
             api_key_id=None,
@@ -243,13 +245,15 @@ def verify_user_code(user_id):
     if user_to_verify.failed_login_count >= current_app.config.get('MAX_VERIFY_CODE_COUNT'):
         raise InvalidRequest("Code not found", status_code=404)
     if not code:
-        # only relevant from sms
         increment_failed_login_count(user_to_verify)
         raise InvalidRequest("Code not found", status_code=404)
-    if datetime.utcnow() > code.expiry_datetime or code.code_used:
+    if datetime.utcnow() > code.expiry_datetime:
         # sms and email
         increment_failed_login_count(user_to_verify)
         raise InvalidRequest("Code has expired", status_code=400)
+    if code.code_used:
+        increment_failed_login_count(user_to_verify)
+        raise InvalidRequest("Code has already been used", status_code=400)
 
     user_to_verify.current_session_id = str(uuid.uuid4())
     user_to_verify.logged_in_at = datetime.utcnow()
@@ -302,10 +306,11 @@ def send_user_sms_code(user_to_send_to, data):
 def send_user_email_code(user_to_send_to, data):
     recipient = user_to_send_to.email_address
 
-    secret_code = str(uuid.uuid4())
+    secret_code = create_secret_code()
+
     personalisation = {
         'name': user_to_send_to.name,
-        'url': _create_2fa_url(user_to_send_to, secret_code, data.get('next'), data.get('email_auth_link_host'))
+        'verify_code': secret_code
     }
 
     create_2fa_code(
@@ -327,6 +332,7 @@ def create_2fa_code(template_id, user_to_send_to, secret_code, recipient, person
         reply_to = template.service.get_default_sms_sender()
     elif template.template_type == EMAIL_TYPE:
         reply_to = template.service.get_default_reply_to_email_address()
+
     saved_notification = persist_notification(
         template_id=template.id,
         template_version=template.version,
@@ -362,7 +368,7 @@ def send_user_confirm_new_email(user_id):
         personalisation={
             'name': user_to_send_to.name,
             'url': _create_confirmation_url(user=user_to_send_to, email_address=email['email']),
-            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support'
+            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support/ask-question-give-feedback'
         },
         notification_type=template.template_type,
         api_key_id=None,
@@ -416,7 +422,7 @@ def send_already_registered_email(user_id):
         personalisation={
             'signin_url': current_app.config['ADMIN_BASE_URL'] + '/sign-in',
             'forgot_password_url': current_app.config['ADMIN_BASE_URL'] + '/forgot-password',
-            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support'
+            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support/ask-question-give-feedback'
         },
         notification_type=template.template_type,
         api_key_id=None,
@@ -559,6 +565,9 @@ def send_user_reset_password():
 
     user_to_send_to = get_user_by_email(email['email'])
 
+    if user_to_send_to.blocked:
+        return jsonify({'message': 'cannot reset password: user blocked'}), 400
+
     template = dao_get_template_by_id(current_app.config['PASSWORD_RESET_TEMPLATE_ID'])
     service = Service.query.get(current_app.config['NOTIFY_SERVICE_ID'])
     saved_notification = persist_notification(
@@ -592,7 +601,7 @@ def update_password(user_id):
 
     response = pwnedpasswords.check(pwd)
     if response > 0:
-        errors.update({'password': ['Password is blacklisted.']})
+        errors.update({'password': ['Password is not allowed.']})
         raise InvalidRequest(errors, status_code=400)
 
     update_user_password(user, pwd)
@@ -724,15 +733,6 @@ def _create_confirmation_url(user, email_address):
     data = json.dumps({'user_id': str(user.id), 'email': email_address})
     url = '/user-profile/email/confirm/'
     return url_with_token(data, url, current_app.config)
-
-
-def _create_2fa_url(user, secret_code, next_redir, email_auth_link_host):
-    data = json.dumps({'user_id': str(user.id), 'secret_code': secret_code})
-    url = '/email-auth/'
-    ret = url_with_token(data, url, current_app.config, base_url=email_auth_link_host)
-    if next_redir:
-        ret += '?{}'.format(urlencode({'next': next_redir}))
-    return ret
 
 
 def get_orgs_and_services(user):
