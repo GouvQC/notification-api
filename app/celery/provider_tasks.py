@@ -12,7 +12,12 @@ from app.exceptions import NotificationTechnicalFailureException, MalwarePending
 from app.models import NOTIFICATION_TECHNICAL_FAILURE
 
 
-@notify_celery.task(bind=True, name="deliver_sms", max_retries=48, default_retry_delay=300)
+@notify_celery.task(
+    bind=True,
+    name="deliver_sms",
+    max_retries=48,
+    default_retry_delay=300,
+    rate_limit="1/s")
 @statsd(namespace="tasks")
 def deliver_sms(self, notification_id):
     try:

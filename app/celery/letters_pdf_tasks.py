@@ -199,7 +199,11 @@ def letter_in_created_state(filename):
     return False
 
 
-@notify_celery.task(bind=True, name='process-virus-scan-passed', max_retries=15, default_retry_delay=300)
+@notify_celery.task(
+    bind=True,
+    name='process-virus-scan-passed',
+    max_retries=15,
+    default_retry_delay=300)
 def process_virus_scan_passed(self, filename):
     reference = get_reference_from_filename(filename)
     notification = dao_get_notification_by_reference(reference)

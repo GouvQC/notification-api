@@ -42,7 +42,7 @@ from app.models import (
     ProviderDetailsHistory,
     ProviderRates,
     ScheduledNotification,
-    ServiceWhitelist,
+    ServiceSafelist,
     KEY_TYPE_NORMAL,
     KEY_TYPE_TEST,
     KEY_TYPE_TEAM,
@@ -847,10 +847,9 @@ def email_2fa_code_template(notify_db, notify_db_session):
         content=(
             'Hi ((name)),'
             ''
-            'To sign in to GOV.​UK Notify please open this link:'
-            '((url))'
+            '((verify_code)) is your security code to log in to Notify.'
         ),
-        subject='Sign in to GOV.UK Notify',
+        subject='Sign in to Notify',
         template_type='email'
     )
 
@@ -1110,20 +1109,20 @@ def notify_service(notify_db, notify_db_session):
 
 
 @pytest.fixture(scope='function')
-def sample_service_whitelist(notify_db, notify_db_session, service=None, email_address=None, mobile_number=None):
+def sample_service_safelist(notify_db, notify_db_session, service=None, email_address=None, mobile_number=None):
     if service is None:
         service = create_service(check_if_service_exists=True)
 
     if email_address:
-        whitelisted_user = ServiceWhitelist.from_string(service.id, EMAIL_TYPE, email_address)
+        safelisted_user = ServiceSafelist.from_string(service.id, EMAIL_TYPE, email_address)
     elif mobile_number:
-        whitelisted_user = ServiceWhitelist.from_string(service.id, MOBILE_TYPE, mobile_number)
+        safelisted_user = ServiceSafelist.from_string(service.id, MOBILE_TYPE, mobile_number)
     else:
-        whitelisted_user = ServiceWhitelist.from_string(service.id, EMAIL_TYPE, 'whitelisted_user@digital.gov.uk')
+        safelisted_user = ServiceSafelist.from_string(service.id, EMAIL_TYPE, 'safelisted_user@digital.gov.uk')
 
-    notify_db.session.add(whitelisted_user)
+    notify_db.session.add(safelisted_user)
     notify_db.session.commit()
-    return whitelisted_user
+    return safelisted_user
 
 
 @pytest.fixture(scope='function')

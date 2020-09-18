@@ -570,12 +570,16 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="migrations\versions\0306b_branding_french_fip.py" />
     <Compile Include="migrations\versions\0306c_branding_organisation.py" />
     <Compile Include="migrations\versions\0306_branding_variables_rename.py" />
+    <Compile Include="migrations\versions\0309a_update_email_2fa_template.py" />
     <Compile Include="migrations\versions\0308_add_email_parameters.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="migrations\versions\0309b_rename_service_whitelist_table.py" />
     <Compile Include="migrations\versions\0309_add_sinch.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="migrations\versions\0309c_system_templates_priority_queue.py" />
+    <Compile Include="migrations\versions\0310_account_change_type.py" />
     <Compile Include="run_celery.py" />
     <Compile Include="scripts\delete_sqs_queues.py" />
     <Compile Include="scripts\fix_migrations.py" />
