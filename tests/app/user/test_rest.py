@@ -218,7 +218,7 @@ def test_create_user_with_known_bad_password(client, notify_db, notify_db_sessio
     assert resp.status_code == 400
     assert User.query.count() == 0
     json_resp = json.loads(resp.get_data(as_text=True))
-    assert {'password': ['Password is blacklisted.']} == json_resp['message']
+    assert {'password': ['Password is not allowed.']} == json_resp['message']
 
 
 def test_can_create_user_with_email_auth_and_no_mobile(admin_request, notify_db_session):
@@ -332,7 +332,6 @@ def test_post_user_attribute_send_notification_email(
         api_key_id=None, key_type='normal', notification_type='email',
         personalisation={
             'name': 'Test User', 'servicemanagername': 'Service Manago',
-            'change_type': '\n- email address\n',
             'email address': 'newuser@mail.com'
         },
         recipient='newuser@mail.com', reply_to_text='notify@gov.uk',
@@ -343,7 +342,6 @@ def test_post_user_attribute_send_notification_email(
         api_key_id=None, key_type='normal', notification_type='sms',
         personalisation={
             'name': 'Test User', 'servicemanagername': 'Service Manago',
-            'change_type': '\n- mobile number\n',
             'email address': 'notify@digital.cabinet-office.gov.uk'
         },
         recipient='+16502532223', reply_to_text='testing', service=mock.ANY,
@@ -374,6 +372,7 @@ def test_post_user_attribute_with_updated_by(
     assert json_resp['data'][user_attribute] == user_value
 
     if arguments:
+        assert mock_persist_notification.call_count == 1
         mock_persist_notification.assert_any_call(**arguments)
 
 
@@ -410,7 +409,8 @@ def test_archive_user_when_user_cannot_be_archived(mocker, client, sample_user):
     )
     json_resp = json.loads(response.get_data(as_text=True))
 
-    msg = "User can’t be removed from a service - check all services have another team member with manage_settings"
+    msg = "User cannot be removed from service. "\
+          "Check that all services have another team member who can manage settings"
 
     assert response.status_code == 400
     assert json_resp['message'] == msg
@@ -665,6 +665,23 @@ def test_send_user_reset_password_should_send_reset_password_link(client,
     assert notification.reply_to_text == notify_service.get_default_reply_to_email_address()
 
 
+@freeze_time("2016-01-01 11:09:00.061258")
+def test_send_user_reset_password_should_send_400_if_user_blocked(client,
+                                                                  mocker,
+                                                                  password_reset_email_template):
+    blocked_user = create_user(blocked=True, email="blocked@cds-snc.ca")
+    mocked = mocker.patch('app.celery.provider_tasks.deliver_email.apply_async')
+    data = json.dumps({'email': blocked_user.email_address})
+    auth_header = create_authorization_header()
+    resp = client.post(
+        url_for('user.send_user_reset_password'),
+        data=data,
+        headers=[('Content-Type', 'application/json'), auth_header])
+    assert resp.status_code == 400
+    assert 'user blocked' in json.loads(resp.get_data(as_text=True))['message']
+    assert mocked.call_count == 0
+
+
 def test_send_user_reset_password_should_return_400_when_email_is_missing(client, mocker):
     mocked = mocker.patch('app.celery.provider_tasks.deliver_email.apply_async')
     data = json.dumps({})
@@ -680,7 +697,7 @@ def test_send_user_reset_password_should_return_400_when_email_is_missing(client
     assert mocked.call_count == 0
 
 
-def test_send_user_reset_password_should_return_400_when_user_doesnot_exist(client, mocker):
+def test_send_user_reset_password_should_return_404_when_user_doesnot_exist(client, mocker):
     mocked = mocker.patch('app.celery.provider_tasks.deliver_email.apply_async')
     bad_email_address = 'bad@email.gov.uk'
     data = json.dumps({'email': bad_email_address})

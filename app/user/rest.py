@@ -1,7 +1,6 @@
 import json
 import uuid
 from datetime import (datetime, timedelta)
-from urllib.parse import urlencode
 import base64
 import pickle
 import requests
@@ -112,7 +111,7 @@ def create_user():
     else:
         response = pwnedpasswords.check(password)
         if response > 0:
-            errors.update({'password': ['Password is blacklisted.']})
+            errors.update({'password': ['Password is not allowed.']})
             raise InvalidRequest(errors, status_code=400)
 
     save_model_user(user_to_create, pwd=req_json.get('password'))
@@ -138,8 +137,11 @@ def update_user_attribute(user_id):
     service = Service.query.get(current_app.config['NOTIFY_SERVICE_ID'])
 
     # Alert user that account change took place
-    change_type = update_dct_to_str(update_dct)
-    _update_alert(user_to_update, change_type)
+    user_alert_dct = update_dct.copy()
+    user_alert_dct.pop('blocked', None)
+    user_alert_dct.pop('current_session_id', None)
+    if not updated_by and user_alert_dct:
+        _update_alert(user_to_update, user_alert_dct)
 
     # Alert that team member edit user
     if updated_by:
@@ -162,8 +164,7 @@ def update_user_attribute(user_id):
             personalisation={
                 'name': user_to_update.name,
                 'servicemanagername': updated_by.name,
-                'email address': user_to_update.email_address,
-                'change_type': change_type
+                'email address': user_to_update.email_address
             },
             notification_type=template.template_type,
             api_key_id=None,
@@ -243,13 +244,15 @@ def verify_user_code(user_id):
     if user_to_verify.failed_login_count >= current_app.config.get('MAX_VERIFY_CODE_COUNT'):
         raise InvalidRequest("Code not found", status_code=404)
     if not code:
-        # only relevant from sms
         increment_failed_login_count(user_to_verify)
         raise InvalidRequest("Code not found", status_code=404)
-    if datetime.utcnow() > code.expiry_datetime or code.code_used:
+    if datetime.utcnow() > code.expiry_datetime:
         # sms and email
         increment_failed_login_count(user_to_verify)
         raise InvalidRequest("Code has expired", status_code=400)
+    if code.code_used:
+        increment_failed_login_count(user_to_verify)
+        raise InvalidRequest("Code has already been used", status_code=400)
 
     user_to_verify.current_session_id = str(uuid.uuid4())
     user_to_verify.logged_in_at = datetime.utcnow()
@@ -302,10 +305,11 @@ def send_user_sms_code(user_to_send_to, data):
 def send_user_email_code(user_to_send_to, data):
     recipient = user_to_send_to.email_address
 
-    secret_code = str(uuid.uuid4())
+    secret_code = create_secret_code()
+
     personalisation = {
         'name': user_to_send_to.name,
-        'url': _create_2fa_url(user_to_send_to, secret_code, data.get('next'), data.get('email_auth_link_host'))
+        'verify_code': secret_code
     }
 
     create_2fa_code(
@@ -327,6 +331,7 @@ def create_2fa_code(template_id, user_to_send_to, secret_code, recipient, person
         reply_to = template.service.get_default_sms_sender()
     elif template.template_type == EMAIL_TYPE:
         reply_to = template.service.get_default_reply_to_email_address()
+
     saved_notification = persist_notification(
         template_id=template.id,
         template_version=template.version,
@@ -362,7 +367,7 @@ def send_user_confirm_new_email(user_id):
         personalisation={
             'name': user_to_send_to.name,
             'url': _create_confirmation_url(user=user_to_send_to, email_address=email['email']),
-            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support'
+            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support/ask-question-give-feedback'
         },
         notification_type=template.template_type,
         api_key_id=None,
@@ -416,7 +421,7 @@ def send_already_registered_email(user_id):
         personalisation={
             'signin_url': current_app.config['ADMIN_BASE_URL'] + '/sign-in',
             'forgot_password_url': current_app.config['ADMIN_BASE_URL'] + '/forgot-password',
-            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support'
+            'feedback_url': current_app.config['ADMIN_BASE_URL'] + '/support/ask-question-give-feedback'
         },
         notification_type=template.template_type,
         api_key_id=None,
@@ -516,7 +521,7 @@ def set_permissions(user_id, service_id):
     change_dict = {service_key: service_id, "permissions": permission_list}
 
     try:
-        _update_alert(user, update_dct_to_str(change_dict))
+        _update_alert(user, change_dict)
     except Exception as e:
         current_app.logger.error(e)
 
@@ -559,6 +564,9 @@ def send_user_reset_password():
 
     user_to_send_to = get_user_by_email(email['email'])
 
+    if user_to_send_to.blocked:
+        return jsonify({'message': 'cannot reset password: user blocked'}), 400
+
     template = dao_get_template_by_id(current_app.config['PASSWORD_RESET_TEMPLATE_ID'])
     service = Service.query.get(current_app.config['NOTIFY_SERVICE_ID'])
     saved_notification = persist_notification(
@@ -592,14 +600,14 @@ def update_password(user_id):
 
     response = pwnedpasswords.check(pwd)
     if response > 0:
-        errors.update({'password': ['Password is blacklisted.']})
+        errors.update({'password': ['Password is not allowed.']})
         raise InvalidRequest(errors, status_code=400)
 
     update_user_password(user, pwd)
-    change_type = update_dct_to_str({'password': "password updated"})
+    changes = {'password': "password updated"}
 
     try:
-        _update_alert(user, change_type)
+        _update_alert(user, changes)
     except Exception as e:
         current_app.logger.error(e)
 
@@ -629,7 +637,7 @@ def create_fido2_keys_user(user_id):
     id = uuid.uuid4()
     key = decode_and_register(cbor_data, get_fido2_session(user_id))
     save_fido2_key(Fido2Key(id=id, user_id=user_id, name=cbor_data["name"], key=key))
-    _update_alert(user)
+    _update_alert(user, changes={'security_key_created': None})
     return jsonify({"id": id})
 
 
@@ -698,7 +706,7 @@ def fido2_keys_user_validate(user_id):
 def delete_fido2_keys_user(user_id, key_id):
     user = get_user_and_accounts(user_id)
     delete_fido2_key(user_id, key_id)
-    _update_alert(user)
+    _update_alert(user, changes={'security_key_deleted': None})
     return jsonify({"id": key_id})
 
 
@@ -726,15 +734,6 @@ def _create_confirmation_url(user, email_address):
     return url_with_token(data, url, current_app.config)
 
 
-def _create_2fa_url(user, secret_code, next_redir, email_auth_link_host):
-    data = json.dumps({'user_id': str(user.id), 'secret_code': secret_code})
-    url = '/email-auth/'
-    ret = url_with_token(data, url, current_app.config, base_url=email_auth_link_host)
-    if next_redir:
-        ret += '?{}'.format(urlencode({'next': next_redir}))
-    return ret
-
-
 def get_orgs_and_services(user):
     return {
         'organisations': [
@@ -757,11 +756,17 @@ def get_orgs_and_services(user):
     }
 
 
-def _update_alert(user_to_update, change_type=""):
+def _update_alert(user_to_update, changes=None):
     service = Service.query.get(current_app.config['NOTIFY_SERVICE_ID'])
     template = dao_get_template_by_id(current_app.config['ACCOUNT_CHANGE_TEMPLATE_ID'])
     recipient = user_to_update.email_address
     reply_to = template.service.get_default_reply_to_email_address()
+
+    change_type_en = ""
+    change_type_fr = ""
+    if changes:
+        change_type_en = update_dct_to_str(changes, 'EN')
+        change_type_fr = update_dct_to_str(changes, 'FR')
 
     saved_notification = persist_notification(
         template_id=template.id,
@@ -771,7 +776,8 @@ def _update_alert(user_to_update, change_type=""):
         personalisation={
             'base_url': Config.ADMIN_BASE_URL,
             'contact_us_url': f'{Config.ADMIN_BASE_URL}/support/ask-question-give-feedback',
-            'change_type': change_type
+            'change_type_en': change_type_en,
+            'change_type_fr': change_type_fr,
         },
         notification_type=template.template_type,
         api_key_id=None,

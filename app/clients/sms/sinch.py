@@ -2,7 +2,7 @@ import clx.xms
 import requests
 import phonenumbers
 from time import monotonic
-from unidecode import unidecode
+import unicodedata
 from app.clients.sms import SmsClient
 
 sinch_response_map = {
@@ -32,7 +32,7 @@ class SinchSMSClient(SmsClient):
         super(SinchSMSClient, self).__init__(*args, **kwargs)
         self._service_plan_id = service_plan_id
         self._token = token
-        self._client = clx.xms.Client(service_plan_id, token)
+        self._client = clx.xms.Client(service_plan_id, token, 'https://ca.sms.api.sinch.com/xms')
 
     def init_app(self, logger, callback_notify_url_host, statsd_client, *args, **kwargs):
         self.logger = logger
@@ -59,7 +59,7 @@ class SinchSMSClient(SmsClient):
             create = clx.xms.api.MtBatchTextSmsCreate()
             create.sender = sender
             create.recipients = {to}
-            create.body = unidecode(content)
+            create.body = unicodedata.normalize('NFKD', content)
             create.client_reference = reference
             create.delivery_report = "per_recipient"
             create.callback_url = callback_url

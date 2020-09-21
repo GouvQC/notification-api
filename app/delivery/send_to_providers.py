@@ -199,8 +199,8 @@ def update_notification_to_sending(notification, provider):
     notification.sent_by = provider.get_name()
     # We currently have no callback method for SNS
     # notification.status = NOTIFICATION_SENT if notification.international else NOTIFICATION_SENDING
-    notification.status = NOTIFICATION_SENT if notification.notification_type == SMS_TYPE and\
-      notification.sent_by == 'sns' else NOTIFICATION_SENDING
+    notification.status = NOTIFICATION_SENT if notification.notification_type == SMS_TYPE and \
+        notification.sent_by == 'sns' else NOTIFICATION_SENDING
     dao_update_notification(notification)
 
 
@@ -218,7 +218,7 @@ def provider_to_use(notification_type, notification_id, international=False, sen
     # Pour forcer l'utilisation de sinch avec un numéro abrege on utilise cette methode qui n est pas totalement sure
     # Un numéro de 5 ou 6 chiffres forcera l'utilisation de sinch
     if sender is not None and notification_type == SMS_TYPE and (
-        len(sender) <= 6 and len(sender) >= 5) and sender.isdecimal():
+            len(sender) <= 6 and len(sender) >= 5) and sender.isdecimal():
         return clients.get_client_by_name_and_type("sinch", notification_type)
 
     # Pour forcer l'utilisation de pinpoint avec un numéro de téléphone à 10 chiffres comme sender

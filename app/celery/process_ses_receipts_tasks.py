@@ -216,7 +216,11 @@ def process_ses_results(self, response):
         self.retry(queue=QueueNames.RETRY)
 
 
-@notify_celery.task(bind=True, name="process-ses-smtp-results", max_retries=5, default_retry_delay=300)
+@notify_celery.task(
+    bind=True,
+    name="process-ses-smtp-results",
+    max_retries=5,
+    default_retry_delay=300)
 @statsd(namespace="tasks")
 def process_ses_smtp_results(self, response):
     try:
