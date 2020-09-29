@@ -408,7 +408,7 @@ class Development(Config):
 
     NOTIFY_ENVIRONMENT = 'development'
     NOTIFICATION_QUEUE_PREFIX = os.getenv("NOTIFICATION_QUEUE_PREFIX", "notification-test-pgn-")
-    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "cspq.gouv.qc.ca")
+    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "itq.gouv.qc.ca")
 
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", 'postgresql://postgres:Postgres@db-pgn/notification_api')
 
@@ -467,7 +467,7 @@ class Test(Development):
 
 
 class Production(Config):
-    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "cspq.gouv.qc.ca")
+    NOTIFY_EMAIL_DOMAIN = os.getenv("NOTIFY_EMAIL_DOMAIN", "itq.gouv.qc.ca")
     NOTIFY_ENVIRONMENT = 'production'
     # CSV_UPLOAD_BUCKET_NAME = 'live-notifications-csv-upload'
     TEST_LETTERS_BUCKET_NAME = 'production-test-letters'

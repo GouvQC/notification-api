@@ -758,9 +758,6 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Content Include=".devcontainer\devcontainer.json" />
     <Content Include=".devcontainer\docker-compose.yml" />
     <Content Include=".devcontainer\Dockerfile" />
-    <Content Include=".env">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include=".env.enc.aws" />
     <Content Include=".env.example" />
     <Content Include=".flake8" />
