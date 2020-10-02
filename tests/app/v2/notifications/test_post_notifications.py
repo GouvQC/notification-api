@@ -292,7 +292,9 @@ def test_post_email_notification_returns_201(client, sample_email_template_with_
     data = {
         "email_address": sample_email_template_with_placeholders.service.users[0].email_address,
         "template_id": sample_email_template_with_placeholders.id,
-        "personalisation": {"name": "Bob"}
+        "personalisation": {"name": "Bob"},
+        "cc_address": "test@test.com",
+        "importance": "high"
     }
     if reference:
         data.update({"reference": reference})
@@ -311,6 +313,8 @@ def test_post_email_notification_returns_201(client, sample_email_template_with_
     assert resp_json['reference'] == reference
     assert notification.reference is None
     assert notification.reply_to_text is None
+    assert notification.additional_email_parameters['cc_address'] == "test@test.com"
+    assert notification.additional_email_parameters['importance'] == "high"
     assert resp_json['content']['body'] == sample_email_template_with_placeholders.content \
         .replace('((name))', 'Bob')
     assert resp_json['content']['subject'] == sample_email_template_with_placeholders.subject \
