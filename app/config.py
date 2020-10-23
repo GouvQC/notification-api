@@ -102,7 +102,7 @@ class Config(object):
     EXPIRE_CACHE_EIGHT_DAYS = 8 * 24 * 60 * 60
 
     # URL of AWS sqs instance
-    SQS_URL = os.getenv("SQS_URL","sqs://")
+    SQS_URL = os.getenv("SQS_URL", "sqs://")
 
     # Performance platform
     PERFORMANCE_PLATFORM_ENABLED = False
