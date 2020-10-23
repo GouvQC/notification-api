@@ -101,6 +101,9 @@ class Config(object):
     EXPIRE_CACHE_TEN_MINUTES = 600
     EXPIRE_CACHE_EIGHT_DAYS = 8 * 24 * 60 * 60
 
+    # URL of AWS sqs instance
+    SQS_URL = os.getenv("SQS_URL","sqs://")
+
     # Performance platform
     PERFORMANCE_PLATFORM_ENABLED = False
     PERFORMANCE_PLATFORM_URL = 'https://www.performance.service.gov.uk/data/govuk-notify/'
@@ -193,7 +196,8 @@ class Config(object):
     BRANDING_REQUEST_TEMPLATE_ID = '7d423d9e-e94e-4118-879d-d52f383206ae'
     SMTP_TEMPLATE_ID = '3a4cab41-c47d-4d49-96ba-f4c4fa91d44b'
 
-    BROKER_URL = 'sqs://'
+    BROKER_TO_USE = os.getenv("BROKER_TO_USE", "redis")
+    BROKER_URL = REDIS_URL if BROKER_TO_USE == 'redis' else SQS_URL
     BROKER_TRANSPORT_OPTIONS = {
         'region': AWS_REGION,
         'polling_interval': 1,  # 1 second
