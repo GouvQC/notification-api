@@ -580,6 +580,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     </Compile>
     <Compile Include="migrations\versions\0309c_system_templates_priority_queue.py" />
     <Compile Include="migrations\versions\0310_account_change_type.py" />
+    <Compile Include="migrations\versions\0310a_drop_emailparam.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="run_celery.py" />
     <Compile Include="scripts\delete_sqs_queues.py" />
     <Compile Include="scripts\fix_migrations.py" />
