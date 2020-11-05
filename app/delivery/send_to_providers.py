@@ -177,6 +177,7 @@ def send_email_to_provider(notification):
 
             reference = provider.send_email(
                 from_address,
+                sending_domain,
                 validate_and_format_email_address(notification.to),
                 plain_text_email.subject,
                 body=str(plain_text_email),

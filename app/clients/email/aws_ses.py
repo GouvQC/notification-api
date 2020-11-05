@@ -65,6 +65,7 @@ class AwsSesClient(EmailClient):
 
     def send_email(self,
                    source,
+                   sending_domain,
                    to_addresses,
                    subject,
                    body,
@@ -74,6 +75,9 @@ class AwsSesClient(EmailClient):
                    importance=None,
                    cc_addresses=None):
         try:
+            aws_ses_owner_account = current_app.config['AWS_SES_OWNER_ACCOUNT']
+            aws_ses_arn = 'arn:aws:ses:{}:{}:identity/{}'.format(current_app.config['AWS_SES_REGION'], aws_ses_owner_account,
+                sending_domain) if aws_ses_owner_account else None
             if isinstance(to_addresses, str):
                 to_addresses = [to_addresses]
             if isinstance(cc_addresses, str):
@@ -93,6 +97,9 @@ class AwsSesClient(EmailClient):
             msg['Subject'] = subject
             msg['From'] = encoded_source
             msg['To'] = ",".join([punycode_encode_email(addr) for addr in to_addresses])
+            if aws_ses_arn:
+                msg.add_header('X-SES-SOURCE-ARN', aws_ses_arn)
+                msg.add_header('X-SES-FROM-ARN', aws_ses_arn)
             if importance:
                 msg.add_header('importance', importance)
             if cc_addresses:

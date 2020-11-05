@@ -145,13 +145,14 @@ class Config(object):
     AWS_SNS_REGION = os.getenv("AWS_SNS_REGION")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION")
     AWS_SES_REGION = os.getenv("AWS_SES_REGION", "ca-central-1")
+    AWS_SES_OWNER_ACCOUNT = os.getenv("AWS_SES_OWNER_ACCOUNT", None)
     AWS_SES_SMTP = os.getenv("AWS_SES_SMTP", "email-smtp.us-east-1.amazonaws.com")
     AWS_SES_ACCESS_KEY = os.getenv('AWS_SES_ACCESS_KEY')
     AWS_SES_SECRET_KEY = os.getenv('AWS_SES_SECRET_KEY')
     AWS_PINPOINT_APP_ID = os.getenv('AWS_PINPOINT_APP_ID')
     AWS_PINPOINT_KEYWORD = os.getenv('AWS_PINPOINT_KEYWORD')
-    CSV_UPLOAD_BUCKET_NAME = os.getenv('CSV_UPLOAD_BUCKET_NAME', 'notification-gouv-qc-ca-csv-upload')
-    ASSET_UPLOAD_BUCKET_NAME = os.getenv('ASSET_UPLOAD_BUCKET_NAME', 'notification-gouv-qc-ca-asset-upload')
+    CSV_UPLOAD_BUCKET_NAME = os.getenv('CSV_UPLOAD_BUCKET_NAME', 'pgn-qc-ca-csv-upload')
+    ASSET_UPLOAD_BUCKET_NAME = os.getenv('ASSET_UPLOAD_BUCKET_NAME', 'pgn-qc-ca-asset-upload')
     ASSET_DOMAIN = os.getenv('ASSET_DOMAIN', 's3.ca-central-1.amazonaws.com')
     INVITATION_EXPIRATION_DAYS = 2
     NOTIFY_APP_NAME = 'api'
