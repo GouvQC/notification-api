@@ -136,6 +136,7 @@ def test_should_send_personalised_template_to_correct_email_provider_and_persist
 
     app.aws_ses_client.send_email.assert_called_once_with(
         '"Sample service" <sample.service@notification.alpha.canada.ca>',
+        'notification.alpha.canada.ca',
         'jo.smith@example.com',
         'Jo <em>some HTML</em>',
         body='Hello Jo\nThis is an email from GOV.\u200bUK with <em>some HTML</em>\n',
@@ -185,6 +186,7 @@ def test_should_respect_custom_sending_domains(
 
     app.aws_ses_client.send_email.assert_called_once_with(
         '"Sample service" <sample.service@foo.bar>',
+        'foo.bar',
         'jo.smith@example.com',
         'Jo <em>some HTML</em>',
         body='Hello Jo\nThis is an email from GOV.\u200bUK with <em>some HTML</em>\n',
@@ -428,6 +430,7 @@ def test_send_email_should_use_service_reply_to_email(
         ANY,
         ANY,
         ANY,
+        ANY,
         body=ANY,
         html_body=ANY,
         reply_to_address='foo@bar.com',
@@ -511,7 +514,7 @@ def test_get_html_email_renderer_prepends_logo_path(notify_api):
     )
 
     renderer = send_to_providers.get_html_email_options(service)
-    domain = "https://notification-gouv-qc-ca-asset-upload.s3.ca-central-1.amazonaws.com"
+    domain = "https://pgn-qc-ca-asset-upload.s3.ca-central-1.amazonaws.com"
     assert renderer['brand_logo'] == "{}{}".format(domain, '/justice-league.png')
 
 
@@ -549,7 +552,7 @@ def test_get_logo_url_works_for_different_environments(base_url, expected_url):
     logo_file = 'filename.png'
 
     logo_url = send_to_providers.get_logo_url(base_url, logo_file)
-    domain = "notification-gouv-qc-ca-asset-upload.s3.ca-central-1.amazonaws.com"
+    domain = "pgn-qc-ca-asset-upload.s3.ca-central-1.amazonaws.com"
     assert logo_url == "https://{}/{}".format(domain, expected_url)
 
 
@@ -734,6 +737,7 @@ def test_send_email_to_provider_uses_reply_to_from_notification(
         ANY,
         ANY,
         ANY,
+        ANY,
         body=ANY,
         html_body=ANY,
         reply_to_address="test@test.com",
@@ -755,6 +759,7 @@ def test_send_email_to_provider_should_format_reply_to_email_address(
     )
 
     app.aws_ses_client.send_email.assert_called_once_with(
+        ANY,
         ANY,
         ANY,
         ANY,
@@ -784,6 +789,7 @@ def test_send_email_to_provider_should_format_email_address(sample_email_notific
 
     # to_addresses
     send_mock.assert_called_once_with(
+        ANY,
         ANY,
         # to_addresses
         'test@example.com',

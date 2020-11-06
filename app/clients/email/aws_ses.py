@@ -76,7 +76,8 @@ class AwsSesClient(EmailClient):
                    cc_addresses=None):
         try:
             aws_ses_owner_account = current_app.config['AWS_SES_OWNER_ACCOUNT']
-            aws_ses_arn = 'arn:aws:ses:{}:{}:identity/{}'.format(current_app.config['AWS_SES_REGION'], aws_ses_owner_account,
+            aws_ses_arn = 'arn:aws:ses:{}:{}:identity/{}'.format(
+                current_app.config['AWS_SES_REGION'], aws_ses_owner_account,
                 sending_domain) if aws_ses_owner_account else None
             if isinstance(to_addresses, str):
                 to_addresses = [to_addresses]
