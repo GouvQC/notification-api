@@ -56,6 +56,7 @@ def test_send_email_handles_reply_to_address(notify_api, mocker, reply_to_addres
     with notify_api.app_context():
         aws_ses_client.send_email(
             source='from@address.com',
+            sending_domain='address.com',
             to_addresses='to@address.com',
             subject='Subject',
             body='Body',
@@ -72,6 +73,7 @@ def test_send_email_handles_punycode_to_address(notify_api, mocker):
     with notify_api.app_context():
         aws_ses_client.send_email(
             'from@address.com',
+            'address.com',
             to_addresses='føøøø@bååååår.com',
             subject='Subject',
             body='Body',
@@ -96,6 +98,7 @@ def test_send_email_raises_bad_email_as_InvalidEmailError(mocker):
     with pytest.raises(InvalidEmailError) as excinfo:
         aws_ses_client.send_email(
             source='from@address.com',
+            sending_domain='address.com',
             to_addresses='definitely@invalid_email.com',
             subject='Subject',
             body='Body'
@@ -121,6 +124,7 @@ def test_send_email_raises_other_errs_as_AwsSesClientException(mocker):
     with pytest.raises(AwsSesClientException) as excinfo:
         aws_ses_client.send_email(
             source='from@address.com',
+            sending_domain='address.com',
             to_addresses='foo@bar.com',
             subject='Subject',
             body='Body'

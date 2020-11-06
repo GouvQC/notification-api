@@ -140,7 +140,7 @@ class Config(object):
 
     NOTIFY_ENVIRONMENT = os.getenv("NOTIFY_ENVIRONMENT", "development")
     ADMIN_CLIENT_USER_NAME = 'notify-admin'
-    AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+    AWS_REGION = os.getenv("AWS_REGION", "ca-central-1")
     AWS_ROUTE53_ZONE = os.getenv("AWS_ROUTE53_ZONE", "Z2OW036USASMAK")
     AWS_SNS_REGION = os.getenv("AWS_SNS_REGION")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION")
@@ -374,7 +374,7 @@ class Config(object):
     MMG_URL = os.getenv("MMG_URL", "https://api.mmg.co.uk/json/api.php")
     FIRETEXT_URL = os.getenv("FIRETEXT_URL", "https://www.firetext.co.uk/api/sendsms/json")
 
-    AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+    AWS_REGION = os.getenv("AWS_REGION", "ca-central-1")
     NOTIFY_LOG_PATH = ''
 
     FIDO2_SERVER = Fido2Server(
