@@ -105,7 +105,7 @@ def process_twilio_response(notification_id):
 def process_sinch_response(notification_id):
     client_name = 'Sinch'
 
-    data = request.values
+    data = json.loads(request.data)
     errors = validate_callback_data(
         data=data,
         fields=['status'],
