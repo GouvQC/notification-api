@@ -944,6 +944,7 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Content Include="app\__pycache__\utils.cpython-36.pyc" />
     <Content Include="app\__pycache__\version.cpython-36.pyc" />
     <Content Include="app\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="Certificats\cluster-ca.cer" />
     <Content Include="Certificats\RQ_CA.pem" />
     <Content Include="CHANGELOG.md" />
     <Content Include="ci\cloudbuild-builder.yaml" />
