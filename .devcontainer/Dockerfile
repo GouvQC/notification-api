@@ -12,7 +12,7 @@ RUN set -ex && mkdir /app
 WORKDIR /app
 
 # Ajout du certificat RQ
-COPY ./Certificats/RQ_CA.crt /usr/local/share/ca-certificates/extra
+COPY ./Certificats/rq_ca.crt /usr/local/share/ca-certificates/extra
 RUN update-ca-certificates
 
 COPY ./requirements.txt /app
