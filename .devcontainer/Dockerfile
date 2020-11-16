@@ -11,12 +11,8 @@ RUN set -ex && mkdir /app
 
 WORKDIR /app
 
-COPY ./Certificats/cluster-ca.cer /app
-#Transformation du certificat .cer en .crt avec OpenSSL
-RUN openssl x509 -inform PEM -in /app/cluster-ca.cer -out /usr/share/ca-certificates/cluster-ca.crt
-#Ajout de l'information du certificat dans le fichier de configuration des certificats de Ubuntu
-RUN echo "cluster-ca.crt" >> /etc/ca-certificates.conf
-#Exécution de l'outil de mise à jour des certificats (Basé sur le fichier /etc/ca-certificates.conf, modifié plus tôt)
+# Ajout du certificat RQ
+COPY ./Certificats/RQ_CA.crt /usr/local/share/ca-certificates/extra
 RUN update-ca-certificates
 
 COPY ./requirements.txt /app
