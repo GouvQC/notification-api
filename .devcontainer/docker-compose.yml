@@ -9,7 +9,7 @@ services:
 
   db-pgn:
     container_name: pgn-pgsql
-    image: postgres:latest
+    image: postgres:12.5
     volumes:
       - postgres-data-volume:/var/lib/postgresql/data:Z
     ports:
