@@ -5,7 +5,7 @@ from time import monotonic
 from app.clients.sms import SmsClient
 
 sinch_response_map = {
-    'Dispatched': 'created',
+    'Dispatched': 'sending',
     'Queued': 'sending',
     'Delivered': 'delivered',
     'Failed': 'permanent-failure',
