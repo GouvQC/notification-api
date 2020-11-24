@@ -12,8 +12,8 @@ RUN set -ex && mkdir /app
 WORKDIR /app
 
 # Ajout du certificat RQ
-COPY ./Certificats/rq_ca.crt /usr/local/share/ca-certificates/extra
-COPY ./Certificats/rq_ca.crt /usr/share/ca-certificates/
+#COPY ./Certificats/rq_ca.crt /usr/local/share/ca-certificates/extra
+COPY ./Certificats/rq_ca.crt /usr/share/ca-certificates/mozilla
 RUN update-ca-certificates
 
 COPY ./requirements.txt /app
