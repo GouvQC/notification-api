@@ -21,6 +21,6 @@ RUN set -ex && pip3 install celery==4.2.0rc4
 COPY . /app
 
 # Ajout du certificat RQ
-RUN cat /app/rq_ca.crt >> /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
+RUN cat /app/Certificats/rq_ca.crt >> /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
 
 RUN make generate-version-file
