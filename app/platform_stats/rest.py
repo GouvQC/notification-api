@@ -106,3 +106,59 @@ def get_usage_for_all_services():
         x['organisation_name'],
         x['service_name']
     )))
+
+
+@platform_stats_blueprint.route('usage-for-all-services-by-organisation')
+def get_usage_for_all_services_by_organisation():
+    organisation_id = request.args.get('organisation_id')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    start_date, end_date = validate_date_range_is_within_a_financial_year(start_date, end_date)
+
+    sms_costs = fetch_sms_billing_for_all_services_by_organisation(organisation_id, start_date, end_date)
+    letter_costs = fetch_letter_costs_for_all_services_by_organisation(organisation_id, start_date, end_date)
+    letter_breakdown = fetch_letter_line_items_for_all_services_by_organisation(organisation_id, start_date, end_date)
+
+    lb_by_service = [
+        (lb.service_id, "{} {} class letters at {}p".format(lb.letters_sent, lb.postage, int(lb.letter_rate * 100)))
+        for lb in letter_breakdown
+    ]
+    combined = {}
+    for s in sms_costs:
+        entry = {
+            "organisation_id": str(s.organisation_id) if s.organisation_id else "",
+            "organisation_name": s.organisation_name or "",
+            "service_id": str(s.service_id),
+            "service_name": s.service_name,
+            "sms_cost": float(s.sms_cost),
+            "sms_fragments": s.chargeable_billable_sms,
+            "letter_cost": 0,
+            "letter_breakdown": ""
+        }
+        combined[s.service_id] = entry
+
+    for l in letter_costs:
+        if l.service_id in combined:
+            combined[l.service_id].update({'letter_cost': float(l.letter_cost)})
+        else:
+            letter_entry = {
+                "organisation_id": str(l.organisation_id) if l.organisation_id else "",
+                "organisation_name": l.organisation_name or "",
+                "service_id": str(l.service_id),
+                "service_name": l.service_name,
+                "sms_cost": 0,
+                "sms_fragments": 0,
+                "letter_cost": float(l.letter_cost),
+                "letter_breakdown": ""
+            }
+            combined[l.service_id] = letter_entry
+    for service_id, breakdown in lb_by_service:
+        combined[service_id]['letter_breakdown'] += (breakdown + '\n')
+
+    # sorting first by name == '' means that blank orgs will be sorted last.
+    return jsonify(sorted(combined.values(), key=lambda x: (
+        x['organisation_name'] == '',
+        x['organisation_name'],
+        x['service_name']
+    )))
