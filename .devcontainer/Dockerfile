@@ -26,8 +26,8 @@ RUN set -ex && pip3 install celery==4.2.0rc4
 # Ajout du certificat RQ
 #COPY ./Certificats/rq_ca.crt /usr/local/share/ca-certificates/extra
 COPY ./Certificats/rq_ca.crt /app
-CMD chmod 777 /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
-CMD cat /app/rq_ca.crt >> /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
+RUN chmod 777 /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
+RUN cat /app/rq_ca.crt >> /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
 #RUN update-ca-certificates
 
 COPY . /app
