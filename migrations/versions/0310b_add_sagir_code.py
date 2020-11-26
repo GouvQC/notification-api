@@ -13,7 +13,8 @@ down_revision = '0310a_drop_emailparam'
 
 
 def upgrade():
-    op.execute('ALTER TABLE organisation DROP COLUMN sagir_code')
+    op.execute('ALTER TABLE organisation ADD COLUMN sagir_code VARCHAR(255)')
 
 def downgrade():
-    op.execute('ALTER TABLE organisation ADD COLUMN sagir_code VARCHAR(255)')
+    op.execute('ALTER TABLE organisation DROP COLUMN sagir_code')
+    
