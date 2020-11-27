@@ -106,7 +106,7 @@ def _send_data_to_service_callback_api(self, data, service_callback_url, token, 
 
 
 def create_delivery_status_callback_data(notification, service_callback_api):
-    from app import DATETIME_FORMAT, encryption
+    from app import DATETIME_FORMAT_CALLBACK, encryption
     data = {
         "notification_id": str(notification.id),
         "notification_client_reference": notification.client_reference,
