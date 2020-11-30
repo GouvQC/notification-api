@@ -11,11 +11,6 @@ RUN set -ex && mkdir /app
 
 WORKDIR /app
 
-# Ajout du certificat RQ
-#COPY ./Certificats/rq_ca.crt /usr/local/share/ca-certificates/extra
-COPY ./Certificats/rq_ca.crt /usr/share/ca-certificates/mozilla
-RUN update-ca-certificates
-
 COPY ./requirements.txt /app
 COPY ./requirements_for_test.txt /app
 
@@ -24,5 +19,8 @@ RUN set -ex && pip3 install -r requirements_for_test.txt
 RUN set -ex && pip3 install celery==4.2.0rc4
 
 COPY . /app
+
+# Ajout du certificat RQ
+RUN cat /app/Certificats/rq_ca.crt >> /usr/local/lib/python3.6/site-packages/certifi/cacert.pem
 
 RUN make generate-version-file

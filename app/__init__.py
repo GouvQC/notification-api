@@ -32,6 +32,7 @@ from app.clients.performance_platform.performance_platform_client import Perform
 from app.encryption import Encryption
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+DATETIME_FORMAT_CALLBACK = "%Y-%m-%dT%H:%M:%S.%f"
 DATE_FORMAT = "%Y-%m-%d"
 
 load_dotenv()
