@@ -68,7 +68,6 @@ attrs==19.3.0
 awscli==1.18.179
 bcrypt==3.1.7
 billiard==3.3.0.23
-bleach==3.1.4
 blinker==1.4
 certifi==2020.6.20
 chardet==3.0.4
