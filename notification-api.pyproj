@@ -579,6 +579,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="migrations\versions\0309c_system_templates_priority_queue.py" />
+    <Compile Include="migrations\versions\0310b_add_sagir_code.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="migrations\versions\0310_account_change_type.py" />
     <Compile Include="migrations\versions\0310a_drop_emailparam.py">
       <SubType>Code</SubType>
