@@ -88,7 +88,7 @@ MarkupSafe==1.1.1
 mistune==0.8.4
 monotonic==1.5
 oscrypto==1.2.1
-phonenumbers==8.10.13
+phonenumbers==8.12.10
 pyasn1==0.4.8
 pycparser==2.20
 PyPDF2==1.26.0
