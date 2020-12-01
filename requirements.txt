@@ -65,7 +65,7 @@ amqp==1.4.9
 anyjson==0.3.3
 asn1crypto==1.4.0
 attrs==19.3.0
-awscli==1.18.179
+#awscli==1.18.179
 bcrypt==3.1.7
 billiard==3.3.0.23
 blinker==1.4
