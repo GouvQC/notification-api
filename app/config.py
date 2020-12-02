@@ -336,7 +336,7 @@ class Config(object):
     STATSD_PORT = 8125
     STATSD_ENABLED = bool(STATSD_HOST)
 
-    SENDING_NOTIFICATIONS_TIMEOUT_PERIOD = 259200  # 3 days
+    SENDING_NOTIFICATIONS_TIMEOUT_PERIOD = 86400  # 1 day
 
     SIMULATED_EMAIL_ADDRESSES = (
         'simulate-delivered@notifications.service.gov.uk',
