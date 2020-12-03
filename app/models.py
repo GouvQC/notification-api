@@ -374,6 +374,7 @@ class Organisation(db.Model):
     agreement_signed_version = db.Column(db.Float, nullable=True)
     crown = db.Column(db.Boolean, nullable=True)
     default_branding_is_french = db.Column(db.Boolean, index=False, unique=False, nullable=False, default=False)
+    sagir_code = db.Column(db.String(255), nullable=True, unique=False, index=False)
     organisation_type = db.Column(
         db.String(255),
         db.ForeignKey('organisation_types.name'),

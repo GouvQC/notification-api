@@ -7,6 +7,7 @@ post_create_organisation_schema = {
     "type": "object",
     "properties": {
         "name": {"type": "string"},
+        "sagir_code": {"type": ["string", "null"]},
         "active": {"type": ["boolean", "null"]},
         "crown": {"type": "boolean"},
         "organisation_type": {"enum": ORGANISATION_TYPES},
@@ -20,6 +21,7 @@ post_update_organisation_schema = {
     "type": "object",
     "properties": {
         "name": {"type": ["string", "null"]},
+        "sagir_code": {"type": ["string", "null"]},
         "active": {"type": ["boolean", "null"]},
         "crown": {"type": ["boolean", "null"]},
         "organisation_type": {"enum": ORGANISATION_TYPES},
