@@ -44,6 +44,7 @@ NOTIFY_ENVIRONMENT = 'development'
 FLASK_DEBUG=1
 WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <PythonDebugWebServerCommandType>script</PythonDebugWebServerCommandType>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
