@@ -418,6 +418,7 @@ class Organisation(db.Model):
         return {
             "id": str(self.id),
             "name": self.name,
+            "sagir_code": self.sagir_code,
             "active": self.active,
             "crown": self.crown,
             "default_branding_is_french": self.default_branding_is_french,
@@ -438,6 +439,7 @@ class Organisation(db.Model):
     def serialize_for_list(self):
         return {
             'name': self.name,
+            "sagir_code": self.sagir_code,
             'id': str(self.id),
             'active': self.active,
             'count_of_live_services': len(self.live_services),
