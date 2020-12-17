@@ -57,7 +57,6 @@ def get_organisations():
 @organisation_blueprint.route('/<uuid:organisation_id>', methods=['GET'])
 def get_organisation_by_id(organisation_id):
     organisation = dao_get_organisation_by_id(organisation_id)
-    print('hyai senior ' + jsonify(organisation.serialize()).get_data(as_text=True), flush=True)
     return jsonify(organisation.serialize())
 
 

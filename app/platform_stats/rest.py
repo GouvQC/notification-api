@@ -1,13 +1,17 @@
 from datetime import datetime
+import re
+import json
 
 from flask import Blueprint, jsonify, request
 
 from app.dao.date_util import get_financial_year_for_datetime
 from app.dao.fact_billing_dao import (
-    fetch_sms_billing_for_all_services, fetch_sms_billing_for_all_services_by_organisation,
-    fetch_letter_costs_for_all_services, fetch_letter_costs_for_all_services_by_organisation,
-    fetch_letter_line_items_for_all_services, fetch_letter_line_items_for_all_services_by_organisation,
+    fetch_sms_billing_for_all_services,
+    fetch_letter_costs_for_all_services,
+    fetch_letter_line_items_for_all_services,
+    fetch_usage_by_organisation
 )
+
 from app.dao.fact_notification_status_dao import fetch_notification_status_totals_for_all_services
 from app.errors import register_errors, InvalidRequest
 from app.platform_stats.platform_stats_schema import platform_stats_request
@@ -52,6 +56,38 @@ def validate_date_range_is_within_a_financial_year(start_date, end_date):
         raise InvalidRequest(message="Date must be in a single financial year.", status_code=400)
 
     return start_date, end_date
+
+
+# https://www.geeksforgeeks.org/how-to-validate-guid-globally-unique-identifier-using-regular-expression/
+def isValidGUID(organisation_id):
+    valid = False
+    try:
+        # Regex to check valid 
+        # GUID (Globally Unique Identifier) 
+        regex = "^[{]?[0-9a-fA-F]{8}" + "-([0-9a-fA-F]{4}-)" + "{3}[0-9a-fA-F]{12}[}]?$"
+         
+        # Compile the ReGex
+        p = re.compile(regex)
+ 
+        # If the string is empty 
+        # return false
+        if (organisation_id == None):
+            valid = False
+ 
+        # Return if the string 
+        # matched the ReGex
+        if(re.search(p, organisation_id)):
+            valid = True
+        else:
+            valid = False
+
+    except ValueError:
+        raise InvalidRequest(message="You must choose organisation from the list", status_code=400)
+
+    if not valid :
+        raise InvalidRequest(message="You must choose organisation from the list", status_code=400)
+
+    return organisation_id
 
 
 @platform_stats_blueprint.route('usage-for-all-services')
@@ -115,51 +151,85 @@ def get_usage_for_all_services_by_organisation():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
+    print("ORG ID EST DONC : " + organisation_id, flush=True)
+
+    organisation_id = isValidGUID(str(organisation_id))
     start_date, end_date = validate_date_range_is_within_a_financial_year(start_date, end_date)
+    servicesOrganisation = fetch_usage_by_organisation(organisation_id, start_date, end_date)
 
-    sms_costs = fetch_sms_billing_for_all_services_by_organisation(organisation_id, start_date, end_date)
-    letter_costs = fetch_letter_costs_for_all_services_by_organisation(organisation_id, start_date, end_date)
-    letter_breakdown = fetch_letter_line_items_for_all_services_by_organisation(organisation_id, start_date, end_date)
+    organisations = {}
+    services = {}
+    notifications = {}
+    providers = {}
+    combined = {"PGNUtilization": {"StartDate" : str(start_date), "EndDate" : str(end_date), "Organisations" : [organisations]}}
+    curOrg = ""
+    curServ = ""
+    email_count = 0
+    sms_count = 0
 
-    lb_by_service = [
-        (lb.service_id, "{} {} class letters at {}p".format(lb.letters_sent, lb.postage, int(lb.letter_rate * 100)))
-        for lb in letter_breakdown
-    ]
-    combined = {}
-    for s in sms_costs:
-        entry = {
-            "organisation_id": str(s.organisation_id) if s.organisation_id else "",
-            "organisation_name": s.organisation_name or "",
-            "service_id": str(s.service_id),
-            "service_name": s.service_name,
-            "sms_cost": float(s.sms_cost),
-            "sms_fragments": s.chargeable_billable_sms,
-            "letter_cost": 0,
-            "letter_breakdown": ""
-        }
-        combined[s.service_id] = entry
-
-    for l in letter_costs:
-        if l.service_id in combined:
-            combined[l.service_id].update({'letter_cost': float(l.letter_cost)})
-        else:
-            letter_entry = {
-                "organisation_id": str(l.organisation_id) if l.organisation_id else "",
-                "organisation_name": l.organisation_name or "",
-                "service_id": str(l.service_id),
-                "service_name": l.service_name,
-                "sms_cost": 0,
-                "sms_fragments": 0,
-                "letter_cost": float(l.letter_cost),
-                "letter_breakdown": ""
+    for org in servicesOrganisation:
+        if not curOrg or curOrg != str(org.organisation_id):
+            curOrg = str(org.organisation_id)
+            services = {}
+            notifications = {}
+            providers = {}
+            entry = {
+                "organisation_id": curOrg,
+                "organisation_name": org.organisation_name,
+                "sagir_code" : org.sagir_code,
+                "services": [services],
             }
-            combined[l.service_id] = letter_entry
-    for service_id, breakdown in lb_by_service:
-        combined[service_id]['letter_breakdown'] += (breakdown + '\n')
+            organisations[org.organisation_name] = entry
+            combined["PGNUtilization"]["Organisations"] = organisations
+
+        if not curServ or curServ != str(org.service_id):
+            curServ = str(org.service_id)
+            notifications = {}
+            providers = {}
+            entry = {
+                "service_id": curServ,
+                "service_name": org.service_name,
+                "restricted": "Trial" if org.restricted else "Live",
+                "notifications": [notifications],
+            }
+            if org.service_name not in services:
+                services[org.service_name] = entry
+            else:
+                services[org.service_name] = [services[org.service_name], entry]
+            combined["PGNUtilization"]["Organisations"][org.organisation_name].update({"services": services})
+
+        if not org.notification_id is None:
+            notifId = str(org.notification_id)
+            providers = {}
+            #providerEntry = {"Providers": {providers}}
+            #if org.sent_by not in providers:
+            #    providers[org.sent_by] = entry
+
+            entry = {
+                "notification_id": notifId,
+                "notification_type": org.notification_type,
+                "email_details": {"Providers" : {"Provider": ""}},
+                "sms_details" : {"Providers" : {"Provider": ""}},
+            }
+            if notifId not in notifications:
+                notifications[notifId] = entry
+            else:
+                notifications[notifId] = [notifications[notifId], entry]
+            combined["PGNUtilization"]["Organisations"][org.organisation_name]["services"][org.service_name].update({"notifications": notifications})
+
+        #if not org.notification_id is None:
+        #    notifId = str(org.notification_id)
+        #    entry = {
+        #        "notification_id": notifId,
+        #        "notification_type": org.notification_type,
+        #    }
+        #    if notifId not in notifications:
+        #        notifications[notifId] = entry
+        #    else:
+        #        notifications[notifId] = [notifications[notifId], entry]
+        #    combined["PGNUtilization"]["Organisations"][org.organisation_name]["services"][notifId] = entry
+
+    print('JSON DUMP : ' + json.dumps(combined), flush=True)
 
     # sorting first by name == '' means that blank orgs will be sorted last.
-    return jsonify(sorted(combined.values(), key=lambda x: (
-        x['organisation_name'] == '',
-        x['organisation_name'],
-        x['service_name']
-    )))
+    return jsonify(servicesOrganisation)
