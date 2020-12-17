@@ -114,7 +114,9 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="app\dao\fact_billing_dao.py" />
     <Compile Include="app\dao\fact_notification_status_dao.py" />
     <Compile Include="app\dao\fido2_key_dao.py" />
+    <Compile Include="app\dao\inbound_shortnumbers_dao.py" />
     <Compile Include="app\dao\inbound_numbers_dao.py" />
+    <Compile Include="app\dao\inbound_sms_keyword_dao.py" />
     <Compile Include="app\dao\inbound_sms_dao.py" />
     <Compile Include="app\dao\invited_org_user_dao.py" />
     <Compile Include="app\dao\invited_user_dao.py" />
@@ -171,6 +173,7 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="app\notifications\notifications_email_callback.py" />
     <Compile Include="app\notifications\notifications_letter_callback.py" />
     <Compile Include="app\notifications\notifications_ses_callback.py" />
+    <Compile Include="app\notifications\notifications_shortnumber_keyword_callback.py" />
     <Compile Include="app\notifications\notifications_sms_callback.py" />
     <Compile Include="app\notifications\process_client_response.py" />
     <Compile Include="app\notifications\process_letter_notifications.py" />
@@ -580,6 +583,7 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="migrations\versions\0309c_system_templates_priority_queue.py" />
+    <Compile Include="migrations\versions\0310c_add_shortnumber_keyword.py" />
     <Compile Include="migrations\versions\0310b_add_sagir_code.py">
       <SubType>Code</SubType>
     </Compile>

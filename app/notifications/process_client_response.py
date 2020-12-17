@@ -4,6 +4,10 @@ from datetime import datetime
 from flask import current_app
 from notifications_utils.template import SMSMessageTemplate
 
+import iso8601
+from notifications_utils.recipients import try_validate_and_format_phone_number
+from notifications_utils.timezones import convert_local_timezone_to_utc
+
 from app import statsd_client
 from app.clients import ClientException
 from app.dao import notifications_dao
@@ -12,13 +16,17 @@ from app.clients.sms.mmg import get_mmg_responses
 from app.clients.sms.sinch import get_sinch_responses
 from app.celery.service_callback_tasks import (
     send_delivery_status_to_service,
+    send_keyword_status_to_service,
     create_delivery_status_callback_data,
+    create_shortnumber_keyword_status_callback_data
 )
 from app.config import QueueNames
 from app.dao.notifications_dao import dao_update_notification
 from app.dao.service_callback_api_dao import get_service_delivery_status_callback_api_for_service
 from app.dao.templates_dao import dao_get_template_by_id
 from app.models import NOTIFICATION_PENDING
+from app.dao.inbound_sms_keyword_dao import dao_create_inbound_sms_keyword
+from app.models import InboundSmsKeyword, INBOUND_SMS_KEYWORD_TYPE, SMS_TYPE
 
 sms_response_mapper = {
     'MMG': get_mmg_responses,
@@ -77,6 +85,36 @@ def process_sms_client_response(status, provider_reference, client_name):
     return success, errors
 
 
+def process_shortnumber_keyword_client_response(service, short_number, from_number, body, received_at, provider_ref, client_name):
+    success = None
+    errors = None
+
+    try:
+        response_parser = sms_response_mapper[client_name]
+    except KeyError:
+        return success, 'unknown sms client: {}'.format(client_name)
+
+    parsed_datetime = iso8601.parse_date(received_at).replace(tzinfo=None)
+    parsed_datetime = convert_local_timezone_to_utc(parsed_datetime)
+
+    inbound = create_inbound_sms_keyword_object(service=service,
+                                        content=body,
+                                        from_number=from_number,
+                                        provider_ref=provider_ref,
+                                        date_received=parsed_datetime,
+                                        provider_name=client_name)
+
+    service_callback_api = get_service_delivery_status_callback_api_for_service(service_id=service.id)
+    # queue callback task only if the service_callback_api exists
+    if service_callback_api:
+        encrypted_data = create_shortnumber_keyword_status_callback_data(inbound, service_callback_api)
+        send_keyword_status_to_service.apply_async([encrypted_data],
+                                                    queue=QueueNames.CALLBACKS)
+
+    success = "{} callback succeeded. keyword stored".format(client_name)
+    return success, errors
+
+
 def _process_for_status(notification_status, client_name, provider_reference):
     # record stats
     notification = notifications_dao.update_notification_status_by_id(
@@ -124,3 +162,24 @@ def _process_for_status(notification_status, client_name, provider_reference):
 def set_notification_sent_by(notification, client_name):
     notification.sent_by = client_name
     dao_update_notification(notification)
+
+
+def create_inbound_sms_keyword_object(service, content, from_number, provider_ref, date_received, provider_name):
+    user_number = try_validate_and_format_phone_number(
+        from_number,
+        international=False,
+        log_msg='Invalid from_number received'
+    )
+
+    inbound = InboundSmsKeyword(
+        service=service,
+        notify_short_number=service.get_inbound_shortnumber(),
+        user_number=from_number,
+        provider_date=date_received,
+        provider_reference=provider_ref,
+        content=content,
+        provider=provider_name
+    )
+    dao_create_inbound_sms_keyword(inbound)
+    return inbound
+
