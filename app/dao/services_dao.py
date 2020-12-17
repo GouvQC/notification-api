@@ -24,6 +24,7 @@ from app.models import (
     ApiKey,
     FactBilling,
     InboundNumber,
+    InboundShortNumber,
     InvitedUser,
     Job,
     Notification,
@@ -195,6 +196,20 @@ def dao_fetch_service_by_inbound_number(number):
 
     return Service.query.filter(
         Service.id == inbound_number.service_id
+    ).first()
+
+
+def dao_fetch_service_by_inbound_shortnumber(short_number):
+    inbound_shortnumber = InboundShortNumber.query.filter(
+        InboundShortNumber.short_number == short_number,
+        InboundShortNumber.active
+    ).first()
+
+    if not inbound_shortnumber:
+        return None
+
+    return Service.query.filter(
+        Service.id == inbound_shortnumber.service_id
     ).first()
 
 

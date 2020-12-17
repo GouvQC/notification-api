@@ -302,6 +302,7 @@ service_letter_branding = db.Table(
 
 INTERNATIONAL_SMS_TYPE = 'international_sms'
 INBOUND_SMS_TYPE = 'inbound_sms'
+INBOUND_SMS_KEYWORD_TYPE = 'inbound_sms_keyword'
 SCHEDULE_NOTIFICATIONS = 'schedule_notifications'
 EMAIL_AUTH = 'email_auth'
 LETTERS_AS_PDF = 'letters_as_pdf'
@@ -316,6 +317,7 @@ SERVICE_PERMISSION_TYPES = [
     LETTER_TYPE,
     INTERNATIONAL_SMS_TYPE,
     INBOUND_SMS_TYPE,
+    INBOUND_SMS_KEYWORD_TYPE,
     SCHEDULE_NOTIFICATIONS,
     EMAIL_AUTH,
     LETTERS_AS_PDF,
@@ -527,6 +529,11 @@ class Service(db.Model, Versioned):
         if self.inbound_number and self.inbound_number.active:
             return self.inbound_number.number
 
+    def get_inbound_shortnumber(self):
+        if self.inbound_shortnumber and self.inbound_shortnumber.active:
+            return self.inbound_shortnumber.short_number
+
+
     def get_default_sms_sender(self):
         default_sms_sender = [x for x in self.service_sms_senders if x.is_default]
         return default_sms_sender[0].sms_sender
@@ -609,6 +616,36 @@ class InboundNumber(db.Model):
         return {
             "id": str(self.id),
             "number": self.number,
+            "provider": self.provider,
+            "service": serialize_service() if self.service else None,
+            "active": self.active,
+            "created_at": self.created_at.strftime(DATETIME_FORMAT),
+            "updated_at": self.updated_at.strftime(DATETIME_FORMAT) if self.updated_at else None,
+        }
+
+
+class InboundShortNumber(db.Model):
+    __tablename__ = "inbound_shortnumbers"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    short_number = db.Column(db.String(11), unique=True, nullable=False)
+    provider = db.Column(db.String(), nullable=False)
+    service_id = db.Column(UUID(as_uuid=True), db.ForeignKey('services.id'), unique=True, index=True, nullable=True)
+    service = db.relationship(Service, backref=db.backref("inbound_shortnumber", uselist=False))
+    active = db.Column(db.Boolean, index=False, unique=False, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, nullable=True, onupdate=datetime.datetime.utcnow)
+
+    def serialize(self):
+        def serialize_service():
+            return {
+                "id": str(self.service_id),
+                "name": self.service.name
+            }
+
+        return {
+            "id": str(self.id),
+            "short_number": self.short_number,
             "provider": self.provider,
             "service": serialize_service() if self.service else None,
             "active": self.active,
@@ -1925,6 +1962,40 @@ class InboundSms(db.Model):
             'created_at': self.created_at.strftime(DATETIME_FORMAT),
             'service_id': str(self.service_id),
             'notify_number': self.notify_number,
+            'user_number': self.user_number,
+            'content': self.content,
+        }
+
+
+class InboundSmsKeyword(db.Model):
+    __tablename__ = 'inbound_sms_keyword'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    service_id = db.Column(UUID(as_uuid=True), db.ForeignKey('services.id'), index=True, nullable=False)
+    service = db.relationship('Service', backref='inbound_sms_keyword')
+
+    notify_short_number = db.Column(db.String, nullable=False)  # the service's number, that the msg was sent to
+    user_number = db.Column(db.String, nullable=False, index=True)  # the end user's number, that the msg was sent from
+    provider_date = db.Column(db.DateTime)
+    provider_reference = db.Column(db.String)
+    provider = db.Column(db.String, nullable=False)
+    _content = db.Column('content', db.String, nullable=False)
+
+    @property
+    def content(self):
+        return encryption.decrypt(self._content)
+
+    @content.setter
+    def content(self, content):
+        self._content = encryption.encrypt(content)
+
+    def serialize(self):
+        return {
+            'id': str(self.id),
+            'created_at': self.created_at.strftime(DATETIME_FORMAT),
+            'service_id': str(self.service_id),
+            'notify_short_number': self.notify_short_number,
             'user_number': self.user_number,
             'content': self.content,
         }

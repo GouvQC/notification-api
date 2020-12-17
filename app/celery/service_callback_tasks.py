@@ -8,9 +8,16 @@ from requests import (
     RequestException
 )
 
+from app.models import (SMS_TYPE)
+
+from app.dao.notifications_dao import (
+    dao_get_notifications_by_to_field
+)
+
 from app import (
     notify_celery,
-    encryption
+    encryption,
+    DATETIME_FORMAT
 )
 from app.config import QueueNames
 
@@ -40,6 +47,38 @@ def send_delivery_status_to_service(
         'send_delivery_status_to_service'
     )
 
+
+@notify_celery.task(bind=True, name="send-keyword-status", max_retries=5, default_retry_delay=300)
+@statsd(namespace="tasks")
+def send_keyword_status_to_service(self, encrypted_status_update):
+    status_update = encryption.decrypt(encrypted_status_update)
+
+    status_stop = 'STOP' if ('stop' in status_update['inbound_sms_keyword_content'].lower() or 
+                             'arret' in status_update['inbound_sms_keyword_content'].lower() or
+                             'arrêt' in status_update['inbound_sms_keyword_content'].lower()) else None
+
+    if status_stop:
+        notifications = dao_get_notifications_by_to_field(status_update['service_callback_api_service_id'],
+                                                         status_update['inbound_sms_keyword_user_number'],
+                                                         SMS_TYPE)
+        if notifications:
+            data = {
+                "id": str(notifications[0].id),
+                "reference": notifications[0].client_reference,
+                "to": notifications[0].to,
+                "status": status_stop,
+                "created_at": notifications[0].created_at.strftime(DATETIME_FORMAT),
+                "completed_at": status_update['inbound_sms_keyword_created_at'],
+                "sent_at": notifications[0].sent_at.strftime(DATETIME_FORMAT),
+                "notification_type": notifications[0].notification_type
+            }
+            _send_data_to_service_callback_api(
+                self,
+                data,
+                status_update['service_callback_api_url'],
+                status_update['service_callback_api_bearer_token'],
+                'send_delivery_status_to_service'
+            )
 
 @notify_celery.task(bind=True, name="send-complaint", max_retries=5, default_retry_delay=300)
 @statsd(namespace="tasks")
@@ -122,6 +161,17 @@ def create_delivery_status_callback_data(notification, service_callback_api):
     }
     return encryption.encrypt(data)
 
+def create_shortnumber_keyword_status_callback_data(inbound_sms_keyword, service_callback_api):
+    from app import DATETIME_FORMAT, encryption
+    data = {
+        "inbound_sms_keyword_user_number": inbound_sms_keyword.user_number,
+        "inbound_sms_keyword_content": inbound_sms_keyword.content,
+        "inbound_sms_keyword_created_at": inbound_sms_keyword.created_at.strftime(DATETIME_FORMAT),
+        "service_callback_api_service_id": str(service_callback_api.service_id),
+        "service_callback_api_url": service_callback_api.url,
+        "service_callback_api_bearer_token": service_callback_api.bearer_token,
+    }
+    return encryption.encrypt(data)
 
 def create_complaint_callback_data(complaint, notification, service_callback_api, recipient):
     from app import DATETIME_FORMAT, encryption
