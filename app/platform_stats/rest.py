@@ -227,4 +227,4 @@ def get_usage_for_all_services_by_organisation():
 
     print('JSON DUMP : ' + json.dumps(combined), flush=True)
 
-    return jsonify(combined)
+    return jsonify(data=combined)
