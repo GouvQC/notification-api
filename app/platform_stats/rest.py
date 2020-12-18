@@ -69,23 +69,18 @@ def isValidGUID(organisation_id):
         # Compile the ReGex
         p = re.compile(regex)
  
-        # If the string is empty 
-        # return false
-        if (organisation_id == None):
-            valid = False
- 
         # Return if the string 
         # matched the ReGex
-        if(re.search(p, organisation_id)):
+        if (organisation_id is None or not organisation_id or re.search(p, organisation_id)):
             valid = True
         else:
             valid = False
 
     except ValueError:
-        raise InvalidRequest(message="You must choose organisation from the list", status_code=400)
+        raise InvalidRequest(message="You must choose an organisation from the list", status_code=400)
 
     if not valid :
-        raise InvalidRequest(message="You must choose organisation from the list", status_code=400)
+        raise InvalidRequest(message="You must choose an organisation from the list", status_code=400)
 
     return organisation_id
 
@@ -151,85 +146,85 @@ def get_usage_for_all_services_by_organisation():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
-    print("ORG ID EST DONC : " + organisation_id, flush=True)
-
     organisation_id = isValidGUID(str(organisation_id))
     start_date, end_date = validate_date_range_is_within_a_financial_year(start_date, end_date)
     servicesOrganisation = fetch_usage_by_organisation(organisation_id, start_date, end_date)
 
     organisations = {}
     services = {}
-    notifications = {}
+
+    email_details = {}
+    sms_details = {}
+
     providers = {}
     combined = {"PGNUtilization": {"StartDate" : str(start_date), "EndDate" : str(end_date), "Organisations" : [organisations]}}
     curOrg = ""
+    curOrgName = ""
     curServ = ""
+
     email_count = 0
     sms_count = 0
+
 
     for org in servicesOrganisation:
         if not curOrg or curOrg != str(org.organisation_id):
             curOrg = str(org.organisation_id)
+            curOrgName = str(org.organisation_name)
             services = {}
-            notifications = {}
+
             providers = {}
+            email_details = {}
+            sms_details = {}
+
             entry = {
                 "organisation_id": curOrg,
-                "organisation_name": org.organisation_name,
+                "organisation_name": curOrgName,
                 "sagir_code" : org.sagir_code,
                 "services": [services],
             }
-            organisations[org.organisation_name] = entry
+            organisations[curOrgName] = entry
             combined["PGNUtilization"]["Organisations"] = organisations
 
         if not curServ or curServ != str(org.service_id):
             curServ = str(org.service_id)
-            notifications = {}
             providers = {}
+            email_details = {}
+            sms_details = {}
+
             entry = {
                 "service_id": curServ,
                 "service_name": org.service_name,
                 "restricted": "Trial" if org.restricted else "Live",
-                "notifications": [notifications],
+                "email_details": {},
+                "sms_details": {},
             }
             if org.service_name not in services:
                 services[org.service_name] = entry
             else:
                 services[org.service_name] = [services[org.service_name], entry]
-            combined["PGNUtilization"]["Organisations"][org.organisation_name].update({"services": services})
+            combined["PGNUtilization"]["Organisations"][curOrgName].update({"services": services})
 
-        if not org.notification_id is None:
-            notifId = str(org.notification_id)
+        if not org.sent_by is None:
+            sent_by = org.sent_by
+            type = "email_details"
             providers = {}
-            #providerEntry = {"Providers": {providers}}
-            #if org.sent_by not in providers:
-            #    providers[org.sent_by] = entry
 
             entry = {
-                "notification_id": notifId,
-                "notification_type": org.notification_type,
-                "email_details": {"Providers" : {"Provider": ""}},
-                "sms_details" : {"Providers" : {"Provider": ""}},
+                "provider": sent_by,
+                "number_sent": org.total_notification_Type,
             }
-            if notifId not in notifications:
-                notifications[notifId] = entry
-            else:
-                notifications[notifId] = [notifications[notifId], entry]
-            combined["PGNUtilization"]["Organisations"][org.organisation_name]["services"][org.service_name].update({"notifications": notifications})
 
-        #if not org.notification_id is None:
-        #    notifId = str(org.notification_id)
-        #    entry = {
-        #        "notification_id": notifId,
-        #        "notification_type": org.notification_type,
-        #    }
-        #    if notifId not in notifications:
-        #        notifications[notifId] = entry
-        #    else:
-        #        notifications[notifId] = [notifications[notifId], entry]
-        #    combined["PGNUtilization"]["Organisations"][org.organisation_name]["services"][notifId] = entry
+            if org.notification_type == "sms":
+                entry["billable_units"] = org.total_billable_units_Type
+                type = "sms_details"
+
+            if org.sent_by not in providers:
+                providers[sent_by] = entry
+            else:
+                providers[sent_by] = [providers[sent_by], entry]
+
+            combined["PGNUtilization"]["Organisations"][curOrgName]["services"][org.service_name][type]["providers"] = providers
 
     print('JSON DUMP : ' + json.dumps(combined), flush=True)
 
-    # sorting first by name == '' means that blank orgs will be sorted last.
-    return jsonify(servicesOrganisation)
+    return jsonify(combined)
