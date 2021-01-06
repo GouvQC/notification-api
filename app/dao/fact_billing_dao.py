@@ -160,8 +160,8 @@ def fetch_letter_line_items_for_all_services(start_date, end_date):
     ).join(
         FactBilling, FactBilling.service_id == Service.id,
     ).filter(
-        FactBilling.bst_date >= start_date,
-        FactBilling.bst_date <= end_date,
+        FactBilling.bst_date.cast(Date) >= start_date,
+        FactBilling.bst_date.cast(Date) <= end_date,
         FactBilling.notification_type == LETTER_TYPE,
     ).group_by(
         Organisation.name,
@@ -202,6 +202,7 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
     ).filter(
         Notification.created_at.cast(Date) >= start_date,
         Notification.created_at.cast(Date) <= end_date,
+        Notification.status == "delivered" or Notification.status == "sent",
     ).group_by(
         Organisation.name,
         Organisation.id,
@@ -236,6 +237,7 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
     ).filter(
         NotificationHistory.created_at.cast(Date) >= start_date,
         NotificationHistory.created_at.cast(Date) <= end_date,
+        NotificationHistory.status == "delivered" or Notification.status == "sent",
     ).group_by(
         Organisation.name,
         Organisation.id,
@@ -255,49 +257,6 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
     query = selectNotification.union(selectNotificationHistory)
 
     return query.all()
-
-
-#def fetch_usage_by_organisation(organisation_id, start_date, end_date):
-#    query = db.session.query(
-#        Organisation.name.label("organisation_name"),
-#        Organisation.id.label("organisation_id"),
-#        Organisation.sagir_code.label("sagir_code"),
-#        Service.name.label("service_name"),
-#        Service.id.label("service_id"),
-#        Service.restricted.label("restricted"),
-#        Notification.id.label("notification_id"),
-#        Notification.notification_type.label("notification_type"),
-#        Notification.sent_by.label("sent_by"),
-#        func.sum(1).label("total_notification_Type"),
-#        func.sum(Notification.billable_units).label("total_billable_units_Type"),
-#    ).select_from(
-#        Service
-#    ).join(
-#        Organisation, Organisation.id == Service.organisation_id, isouter=True
-#    ).join(
-#        Notification, Notification.service_id == Service.id,
-#    ).join(
-#        ProviderDetails, ProviderDetails.identifier == Notification.sent_by and ProviderDetails.notification_type == Notification.notification_type,
-#    ).filter(
-#        Notification.created_at.cast(Date) >= start_date,
-#        Notification.created_at.cast(Date) <= end_date,
-#    ).group_by(
-#        Organisation.name,
-#        Organisation.id,
-#        Service.name,
-#        Service.id,
-#        Notification.id,
-#        Notification.notification_type,
-#        Notification.sent_by,
-#    ).order_by(
-#        Organisation.name,
-#        Service.name,
-#    )
-
-#    if organisation_id is not None and organisation_id:
-#        query = query.filter(Organisation.id == organisation_id)
-
-#    return query.all()
 
 
 def fetch_billing_totals_for_year(service_id, year):
