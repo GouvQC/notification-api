@@ -2,8 +2,9 @@ from datetime import datetime, timedelta, time, date
 
 from flask import current_app
 from notifications_utils.timezones import convert_local_timezone_to_utc, convert_utc_to_local_timezone
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import func, case, cast, desc, Date, Integer, and_
+from sqlalchemy import func, case, cast, desc, Date, Integer, and_, or_
 
 from app import db
 from app.dao.date_util import (
@@ -194,15 +195,15 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
     ).select_from(
         Notification
     ).join(
-        Service, Service.id == Notification.service_id,
+        Service, Service.id == Notification.service_id, isouter=True
     ).join(
-        ProviderDetails, ProviderDetails.identifier == Notification.sent_by and ProviderDetails.notification_type == Notification.notification_type,
+        ProviderDetails, ProviderDetails.identifier == Notification.sent_by and ProviderDetails.notification_type == Notification.notification_type, isouter=True
     ).join(
         Organisation, Organisation.id == Service.organisation_id, isouter=True
     ).filter(
         Notification.created_at.cast(Date) >= start_date,
         Notification.created_at.cast(Date) <= end_date,
-        Notification.status == "delivered" or Notification.status == "sent",
+        or_(Notification.status == "delivered", Notification.status == "sent"),
     ).group_by(
         Organisation.name,
         Organisation.id,
@@ -210,9 +211,6 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
         Service.id,
         Notification.notification_type,
         Notification.sent_by,
-    ).order_by(
-        Organisation.name,
-        Service.name,
     )
 
     selectNotificationHistory = db.session.query(
@@ -229,15 +227,15 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
     ).select_from(
         NotificationHistory
     ).join(
-        Service, Service.id == NotificationHistory.service_id,
+        Service, Service.id == NotificationHistory.service_id, isouter=True
     ).join(
-        ProviderDetails, ProviderDetails.identifier == NotificationHistory.sent_by and ProviderDetails.notification_type == NotificationHistory.notification_type,
+        ProviderDetails, ProviderDetails.identifier == NotificationHistory.sent_by and ProviderDetails.notification_type == NotificationHistory.notification_type, isouter=True
     ).join(
         Organisation, Organisation.id == Service.organisation_id, isouter=True
     ).filter(
         NotificationHistory.created_at.cast(Date) >= start_date,
         NotificationHistory.created_at.cast(Date) <= end_date,
-        NotificationHistory.status == "delivered" or Notification.status == "sent",
+        or_(NotificationHistory.status == "delivered", NotificationHistory.status == "sent"),
     ).group_by(
         Organisation.name,
         Organisation.id,
@@ -245,16 +243,18 @@ def fetch_usage_by_organisation(organisation_id, start_date, end_date):
         Service.id,
         NotificationHistory.notification_type,
         NotificationHistory.sent_by,
-    ).order_by(
-        Organisation.name,
-        Service.name,
     )
 
     if organisation_id is not None and organisation_id:
         selectNotification = selectNotification.filter(Organisation.id == organisation_id)
         selectNotificationHistory = selectNotificationHistory.filter(Organisation.id == organisation_id)
 
-    query = selectNotification.union(selectNotificationHistory)
+    query = selectNotification.union(selectNotificationHistory).order_by(
+        Organisation.name,
+        Service.name,
+    )
+
+    print("Requete SQL Donne : " + str(query.statement.compile(dialect=postgresql.dialect())), flush=True)
 
     return query.all()
 
