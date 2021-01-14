@@ -229,10 +229,6 @@ def get_usage_for_all_services_by_organisation():
                 providers[sent_by] = entry
             else:
                 providers[sent_by] = [providers[sent_by], entry]
-            
-            print('OrgName : ' + curOrgName, flush=True)
-            print('Service name : ' + org.service_name, flush=True) 
-            print('Providers ' + json.dumps(providers), flush=True)
 
             combined["PGNUtilization"]["Organisations"][curOrgName]["services"][org.service_name][type]["providers"] = providers
 

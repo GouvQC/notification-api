@@ -19,7 +19,9 @@ from app.dao.fact_billing_dao import (
     get_rates_for_billing,
     fetch_sms_free_allowance_remainder,
     fetch_sms_billing_for_all_services,
-    fetch_letter_costs_for_all_services, fetch_letter_line_items_for_all_services)
+    fetch_letter_costs_for_all_services,
+    fetch_letter_line_items_for_all_services,
+    fetch_usage_by_organisation)    
 from app.dao.organisation_dao import dao_add_service_to_organisation
 from app.models import (
     FactBilling,
@@ -619,3 +621,27 @@ def test_fetch_letter_line_items_for_all_service(notify_db_session):
     assert results[2] == (org_2.name, org_2.id, service_2.name, service_2.id, Decimal("0.65"), 'second', 20)
     assert results[3] == (org_2.name, org_2.id, service_2.name, service_2.id, Decimal("0.50"), 'first', 2)
     assert results[4] == (None, None, service_3.name, service_3.id, Decimal("0.55"), 'second', 15)
+
+
+def test_fetch_usage_for_all_organisation(notify_db_session):
+    all_organisation = 0
+    org_1, org_2, service_1, service_2, service_3, service_sms_only = set_up_usage_data(datetime(2019, 6, 1))
+
+    results = fetch_usage_by_organisation(all_organisation, datetime(2019, 6, 1), datetime(2019, 9, 30))
+
+    assert len(results) == 5
+    assert results[0] == (org_1.name, org_1.id, None, service_1.name, service_1.id, False, 'letter', 'test', 8, 5)
+    assert results[1] == (org_1.name, org_1.id, None, service_1.name, service_1.id, False, 'sms', 'test', 2, 3)
+    assert results[2] == (org_2.name, org_2.id, None, service_2.name, service_2.id, False, 'letter', 'test', 22, 13)
+    assert results[3] == (None, None, None, service_sms_only.name, service_sms_only.id, False, 'sms', 'test', 2, 3)
+    assert results[4] == (None, None, None, service_3.name, service_3.id, False, 'letter', 'test', 15, 4)
+
+
+def test_fetch_usage_for_one_organisation(notify_db_session):
+    org_1, org_2, service_1, service_2, service_3, service_sms_only = set_up_usage_data(datetime(2019, 6, 1))
+
+    results = fetch_usage_by_organisation(org_1.id, datetime(2019, 6, 1), datetime(2019, 9, 30))
+
+    assert len(results) == 2
+    assert results[0] == (org_1.name, org_1.id, None, service_1.name, service_1.id, False, 'letter', 'test', 8, 5)
+    assert results[1] == (org_1.name, org_1.id, None, service_1.name, service_1.id, False, 'sms', 'test', 2, 3)

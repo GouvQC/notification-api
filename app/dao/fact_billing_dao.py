@@ -181,80 +181,40 @@ def fetch_letter_line_items_for_all_services(start_date, end_date):
 
 
 def fetch_usage_by_organisation(organisation_id, start_date, end_date):
-    selectNotification = db.session.query(
+    query = db.session.query(
         Organisation.name.label("organisation_name"),
         Organisation.id.label("organisation_id"),
         Organisation.sagir_code.label("sagir_code"),
         Service.name.label("service_name"),
         Service.id.label("service_id"),
         Service.restricted.label("restricted"),
-        Notification.notification_type.label("notification_type"),
-        Notification.sent_by.label("sent_by"),
-        func.sum(1).label("total_notification_Type"),
-        func.sum(Notification.billable_units).label("total_billable_units_Type"),
+        FactBilling.notification_type.label("notification_type"),
+        FactBilling.provider.label("sent_by"),
+        func.sum(FactBilling.notifications_sent).label("total_notification_Type"),
+        func.sum(FactBilling.billable_units).label("total_billable_units_Type"),
     ).select_from(
-        Notification
+        Service
+    ).outerjoin(
+        Service.organisation
     ).join(
-        Service, Service.id == Notification.service_id, isouter=True
-    ).join(
-        ProviderDetails, ProviderDetails.identifier == Notification.sent_by and ProviderDetails.notification_type == Notification.notification_type, isouter=True
-    ).join(
-        Organisation, Organisation.id == Service.organisation_id, isouter=True
+        FactBilling, FactBilling.service_id == Service.id,
     ).filter(
-        Notification.created_at.cast(Date) >= start_date,
-        Notification.created_at.cast(Date) <= end_date,
-        or_(Notification.status == "delivered", Notification.status == "sent"),
+        FactBilling.bst_date.cast(Date) >= start_date,
+        FactBilling.bst_date.cast(Date) <= end_date,
     ).group_by(
         Organisation.name,
         Organisation.id,
-        Service.name,
         Service.id,
-        Notification.notification_type,
-        Notification.sent_by,
-    )
-
-    selectNotificationHistory = db.session.query(
-        Organisation.name.label("organisation_name"),
-        Organisation.id.label("organisation_id"),
-        Organisation.sagir_code.label("sagir_code"),
-        Service.name.label("service_name"),
-        Service.id.label("service_id"),
-        Service.restricted.label("restricted"),
-        NotificationHistory.notification_type.label("notification_type"),
-        NotificationHistory.sent_by.label("sent_by"),
-        func.sum(1).label("total_notification_Type"),
-        func.sum(NotificationHistory.billable_units).label("total_billable_units_Type"),
-    ).select_from(
-        NotificationHistory
-    ).join(
-        Service, Service.id == NotificationHistory.service_id, isouter=True
-    ).join(
-        ProviderDetails, ProviderDetails.identifier == NotificationHistory.sent_by and ProviderDetails.notification_type == NotificationHistory.notification_type, isouter=True
-    ).join(
-        Organisation, Organisation.id == Service.organisation_id, isouter=True
-    ).filter(
-        NotificationHistory.created_at.cast(Date) >= start_date,
-        NotificationHistory.created_at.cast(Date) <= end_date,
-        or_(NotificationHistory.status == "delivered", NotificationHistory.status == "sent"),
-    ).group_by(
+        Service.name,
+        FactBilling.notification_type,
+        FactBilling.provider,
+    ).order_by(
         Organisation.name,
-        Organisation.id,
         Service.name,
-        Service.id,
-        NotificationHistory.notification_type,
-        NotificationHistory.sent_by,
     )
 
     if organisation_id is not None and organisation_id:
-        selectNotification = selectNotification.filter(Organisation.id == organisation_id)
-        selectNotificationHistory = selectNotificationHistory.filter(Organisation.id == organisation_id)
-
-    query = selectNotification.union(selectNotificationHistory).order_by(
-        Organisation.name,
-        Service.name,
-    )
-
-    print("Requete SQL Donne : " + str(query.statement.compile(dialect=postgresql.dialect())), flush=True)
+        query = query.filter(Organisation.id == organisation_id)
 
     return query.all()
 

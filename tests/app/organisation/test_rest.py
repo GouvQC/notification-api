@@ -27,17 +27,20 @@ def test_get_all_organisations(admin_request, notify_db_session):
     assert set(response[0].keys()) == set(response[1].keys()) == {
         'name',
         'id',
+        'sagir_code',
         'active',
         'count_of_live_services',
         'domains',
         'organisation_type',
     }
     assert response[0]['name'] == 'active org'
+    assert response[0]['sagir_code'] is None
     assert response[0]['active'] is True
     assert response[0]['count_of_live_services'] == 0
     assert response[0]['domains'] == ['example.com']
     assert response[0]['organisation_type'] is None
     assert response[1]['name'] == 'inactive org'
+    assert response[1]['sagir_code'] is None
     assert response[1]['active'] is False
     assert response[1]['count_of_live_services'] == 0
     assert response[1]['domains'] == []
@@ -56,6 +59,7 @@ def test_get_organisation_by_id(admin_request, notify_db_session):
     assert set(response.keys()) == {
         'id',
         'name',
+        'sagir_code',
         'active',
         'crown',
         'default_branding_is_french',
@@ -74,6 +78,7 @@ def test_get_organisation_by_id(admin_request, notify_db_session):
     }
     assert response['id'] == str(org.id)
     assert response['name'] == 'test_org_1'
+    assert response['sagir_code'] == None
     assert response['active'] is True
     assert response['crown'] is None
     assert response['organisation_type'] is None
