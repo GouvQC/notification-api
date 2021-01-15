@@ -165,7 +165,7 @@ def get_usage_for_all_services_by_organisation():
     email_count = 0
     sms_count = 0
 
-    ## print("Nombre d'organisations : ", len(servicesOrganisation), flush=True)
+    # print("Nombre d'organisations : ", len(servicesOrganisation), flush=True)
 
     for org in servicesOrganisation:
         if not curOrg or curOrg != str(org.organisation_id):

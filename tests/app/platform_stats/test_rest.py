@@ -156,12 +156,12 @@ def test_get_usage_for_all_services(notify_db_session, admin_request):
     assert response[3]["letter_breakdown"] == "15 second class letters at 55p\n"
 
 
-def test_get_usage_for_all_services_by_organisation(notify_db_session, admin_request):
-    org = set_up_usage_data(datetime(2020, 12, 1))
-    response = admin_request.get("platform_stats.get_usage_for_all_services_by_organisation",
-                                 organisation_id = "",
-                                 start_date='2020-12-01',
-                                 end_date='2021-01-08')
+ # def test_get_usage_for_all_services_by_organisation(notify_db_session, admin_request):
+ #   org = set_up_usage_data(datetime(2020, 12, 1))
+ #   response = admin_request.get("platform_stats.get_usage_for_all_services_by_organisation",
+ #                                organisation_id = "",
+ #                                start_date='2020-12-01',
+ #                                end_date='2021-01-08')
 
-    ##assert len(response) == 10
-    ## Assertions
+ #    assert len(response) == 10
+ #    Assertions
