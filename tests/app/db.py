@@ -28,6 +28,7 @@ from app.models import (
     DailySortedLetter,
     InboundSms,
     InboundNumber,
+    InboundShortNumber,
     Job,
     Notification,
     EmailBranding,
@@ -545,6 +546,19 @@ def create_inbound_number(number, provider='mmg', active=True, service_id=None):
     db.session.add(inbound_number)
     db.session.commit()
     return inbound_number
+
+
+def create_inbound_shortnumber(shortnumber, provider='sinch', active=True, service_id=None):
+    inbound_shortnumber = InboundShortNumber(
+        id=uuid.uuid4(),
+        short_number=shortnumber,
+        provider=provider,
+        active=active,
+        service_id=service_id
+    )
+    db.session.add(inbound_shortnumber)
+    db.session.commit()
+    return inbound_shortnumber
 
 
 def create_reply_to_email(
