@@ -44,7 +44,7 @@ def dao_allocate_shortnumber_for_service(service_id, inbound_shortnumber_id):
         {"service_id": service_id}
     )
     if not updated:
-        raise Exception("Inbound number: {} is not available".format(inbound_shortnumber_id))
+        raise Exception("Inbound shortnumber: {} is not available".format(inbound_shortnumber_id))
     return InboundShortNumber.query.get(inbound_shortnumber_id)
 
 

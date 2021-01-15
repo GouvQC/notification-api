@@ -63,6 +63,7 @@ from tests.app.db import (
     create_service,
     create_api_key,
     create_inbound_number,
+    create_inbound_shortnumber,
     create_letter_contact,
     create_invited_org_user,
     create_job
@@ -1142,6 +1143,16 @@ def sample_inbound_numbers(notify_db, notify_db_session, sample_service):
     inbound_numbers.append(create_inbound_number(number='2', provider='mmg', active=False, service_id=service.id))
     inbound_numbers.append(create_inbound_number(number='3', provider='firetext', service_id=sample_service.id))
     return inbound_numbers
+
+
+@pytest.fixture
+def sample_inbound_shortnumbers(notify_db, notify_db_session, sample_service):
+    service = create_service(service_name='sample service 2', check_if_service_exists=True)
+    inbound_shortnumbers = list()
+    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='1', provider='sinch'))
+    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='2', provider='sinch', active=False, service_id=service.id))
+    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='3', provider='sinch', service_id=sample_service.id))
+    return inbound_shortnumbers
 
 
 @pytest.fixture
