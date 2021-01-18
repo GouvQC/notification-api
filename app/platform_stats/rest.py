@@ -167,10 +167,7 @@ def get_usage_for_all_services_by_organisation():
             curOrg = str(org.organisation_id)
             curOrgName = str(org.organisation_name)
             services = {}
-
             providers = {}
-            email_details = {}
-            sms_details = {}
 
             entry = {
                 "organisation_id": curOrg,
