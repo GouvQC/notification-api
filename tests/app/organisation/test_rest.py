@@ -78,7 +78,7 @@ def test_get_organisation_by_id(admin_request, notify_db_session):
     }
     assert response['id'] == str(org.id)
     assert response['name'] == 'test_org_1'
-    assert response['sagir_code'] == None
+    assert response['sagir_code'] is None
     assert response['active'] is True
     assert response['crown'] is None
     assert response['organisation_type'] is None

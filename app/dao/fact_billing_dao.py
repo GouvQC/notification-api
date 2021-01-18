@@ -2,9 +2,8 @@ from datetime import datetime, timedelta, time, date
 
 from flask import current_app
 from notifications_utils.timezones import convert_local_timezone_to_utc, convert_utc_to_local_timezone
-from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy import func, case, cast, desc, Date, Integer, and_, or_
+from sqlalchemy import func, case, desc, Date, Integer, and_
 
 from app import db
 from app.dao.date_util import (
@@ -23,7 +22,6 @@ from app.models import (
     NOTIFICATION_STATUS_TYPES_BILLABLE,
     Notification,
     NotificationHistory,
-    ProviderDetails,
     EMAIL_TYPE,
     NOTIFICATION_STATUS_TYPES_BILLABLE_FOR_LETTERS,
     AnnualBilling,

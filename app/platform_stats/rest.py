@@ -62,14 +62,14 @@ def validate_date_range_is_within_a_financial_year(start_date, end_date):
 def isValidGUID(organisation_id):
     valid = False
     try:
-        # Regex to check valid 
-        # GUID (Globally Unique Identifier) 
+        # Regex to check valid
+        # GUID (Globally Unique Identifier)
         regex = "^[{]?[0-9a-fA-F]{8}" + "-([0-9a-fA-F]{4}-)" + "{3}[0-9a-fA-F]{12}[}]?$"
-         
+
         # Compile the ReGex
         p = re.compile(regex)
- 
-        # Return if the string 
+
+        # Return if the string
         # matched the ReGex
         if (organisation_id is None or not organisation_id or re.search(p, organisation_id)):
             valid = True
@@ -79,7 +79,7 @@ def isValidGUID(organisation_id):
     except ValueError:
         raise InvalidRequest(message="You must choose an organisation from the list", status_code=400)
 
-    if not valid :
+    if not valid:
         raise InvalidRequest(message="You must choose an organisation from the list", status_code=400)
 
     return organisation_id
@@ -157,15 +157,10 @@ def get_usage_for_all_services_by_organisation():
     sms_details = {}
 
     providers = {}
-    combined = {"PGNUtilization": {"StartDate" : str(start_date), "EndDate" : str(end_date), "Organisations" : [organisations]}}
+    combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date), "Organisations": [organisations]}}
     curOrg = ""
     curOrgName = ""
     curServ = ""
-
-    email_count = 0
-    sms_count = 0
-
-    # print("Nombre d'organisations : ", len(servicesOrganisation), flush=True)
 
     for org in servicesOrganisation:
         if not curOrg or curOrg != str(org.organisation_id):
@@ -180,7 +175,7 @@ def get_usage_for_all_services_by_organisation():
             entry = {
                 "organisation_id": curOrg,
                 "organisation_name": curOrgName,
-                "sagir_code" : org.sagir_code,
+                "sagir_code": org.sagir_code,
                 "services": [services],
             }
             organisations[curOrgName] = entry
@@ -189,8 +184,6 @@ def get_usage_for_all_services_by_organisation():
         if not curServ or curServ != str(org.service_id):
             curServ = str(org.service_id)
             providers = {}
-            email_details = {}
-            sms_details = {}
 
             entry = {
                 "service_id": curServ,
@@ -207,7 +200,7 @@ def get_usage_for_all_services_by_organisation():
 
             combined["PGNUtilization"]["Organisations"][curOrgName].update({"services": services})
 
-        if not org.sent_by is None:
+        if org.sent_by is not None:
             sent_by = org.sent_by
             type = "email_details"
             providers = {}
@@ -218,7 +211,7 @@ def get_usage_for_all_services_by_organisation():
             }
 
             print('OrgName : ' + curOrgName, flush=True)
-            print('Service name : ' + org.service_name, flush=True) 
+            print('Service name : ' + org.service_name, flush=True)
             print('Entry ' + json.dumps(entry), flush=True)
 
             if org.notification_type == "sms":
