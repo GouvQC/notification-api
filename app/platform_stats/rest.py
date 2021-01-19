@@ -1,6 +1,5 @@
 from datetime import datetime
 import re
-import json
 
 from flask import Blueprint, jsonify, request
 
@@ -152,9 +151,6 @@ def get_usage_for_all_services_by_organisation():
 
     organisations = {}
     services = {}
-
-    email_details = {}
-    sms_details = {}
 
     providers = {}
     combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date), "Organisations": [organisations]}}
