@@ -207,10 +207,6 @@ def get_usage_for_all_services_by_organisation():
                 "number_sent": org.total_notification_Type,
             }
 
-            print('OrgName : ' + curOrgName, flush=True)
-            print('Service name : ' + org.service_name, flush=True)
-            print('Entry ' + json.dumps(entry), flush=True)
-
             if org.notification_type == "sms":
                 entry["billable_units"] = org.total_billable_units_Type
                 type = "sms_details"
@@ -221,7 +217,5 @@ def get_usage_for_all_services_by_organisation():
                 providers[sent_by] = [providers[sent_by], entry]
 
             combined["PGNUtilization"]["Organisations"][curOrgName]["services"][org.service_name][type]["providers"] = providers
-
-    print('JSON DUMP : ' + json.dumps(combined), flush=True)
 
     return jsonify(data=combined)
