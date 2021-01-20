@@ -149,69 +149,73 @@ def get_usage_for_all_services_by_organisation():
     start_date, end_date = validate_date_range_is_within_a_financial_year(start_date, end_date)
     servicesOrganisation = fetch_usage_by_organisation(organisation_id, start_date, end_date)
 
-    organisations = {}
-    services = {}
 
-    providers = {}
-    combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date), "Organisations": [organisations]}}
-    curOrg = ""
-    curOrgName = ""
-    curServ = ""
+    if servicesOrganisation :
+        organisations = {}
+        services = {}
 
-    for org in servicesOrganisation:
-        if not curOrg or curOrg != str(org.organisation_id):
-            curOrg = str(org.organisation_id)
-            curOrgName = str(org.organisation_name)
-            services = {}
-            providers = {}
+        providers = {}
+        combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date), "Organisations": [organisations]}}
+        curOrg = ""
+        curOrgName = ""
+        curServ = ""
 
-            entry = {
-                "organisation_id": curOrg,
-                "organisation_name": curOrgName,
-                "sagir_code": org.sagir_code,
-                "services": [services],
-            }
-            organisations[curOrgName] = entry
-            combined["PGNUtilization"]["Organisations"] = organisations
+        for org in servicesOrganisation:
+            if not curOrg or curOrg != str(org.organisation_id):
+                curOrg = str(org.organisation_id)
+                curOrgName = str(org.organisation_name)
+                services = {}
+                providers = {}
 
-        if not curServ or curServ != str(org.service_id):
-            curServ = str(org.service_id)
-            providers = {}
+                entry = {
+                    "organisation_id": curOrg,
+                    "organisation_name": curOrgName,
+                    "sagir_code": org.sagir_code,
+                    "services": [services],
+                }
+                organisations[curOrgName] = entry
+                combined["PGNUtilization"]["Organisations"] = organisations
 
-            entry = {
-                "service_id": curServ,
-                "service_name": org.service_name,
-                "restricted": "Trial" if org.restricted else "Live",
-                "email_details": {},
-                "sms_details": {},
-            }
+            if not curServ or curServ != str(org.service_id):
+                curServ = str(org.service_id)
+                providers = {}
 
-            if org.service_name not in services:
-                services[org.service_name] = entry
-            else:
-                services[org.service_name] = [services[org.service_name], entry]
+                entry = {
+                    "service_id": curServ,
+                    "service_name": org.service_name,
+                    "restricted": "Trial" if org.restricted else "Live",
+                    "email_details": {},
+                    "sms_details": {},
+                }
 
-            combined["PGNUtilization"]["Organisations"][curOrgName].update({"services": services})
+                if org.service_name not in services:
+                    services[org.service_name] = entry
+                else:
+                    services[org.service_name] = [services[org.service_name], entry]
 
-        if org.sent_by is not None:
-            sent_by = org.sent_by
-            type = "email_details"
-            providers = {}
+                combined["PGNUtilization"]["Organisations"][curOrgName].update({"services": services})
 
-            entry = {
-                "provider": sent_by,
-                "number_sent": org.total_notification_Type,
-            }
+            if org.sent_by is not None:
+                sent_by = org.sent_by
+                type = "email_details"
+                providers = {}
 
-            if org.notification_type == "sms":
-                entry["billable_units"] = org.total_billable_units_Type
-                type = "sms_details"
+                entry = {
+                    "provider": sent_by,
+                    "number_sent": org.total_notification_Type,
+                }
 
-            if org.sent_by not in providers:
-                providers[sent_by] = entry
-            else:
-                providers[sent_by] = [providers[sent_by], entry]
+                if org.notification_type == "sms":
+                    entry["billable_units"] = org.total_billable_units_Type
+                    type = "sms_details"
 
-            combined["PGNUtilization"]["Organisations"][curOrgName]["services"][org.service_name][type]["providers"] = providers
+                if org.sent_by not in providers:
+                    providers[sent_by] = entry
+                else:
+                    providers[sent_by] = [providers[sent_by], entry]
 
-    return jsonify(data=combined)
+                combined["PGNUtilization"]["Organisations"][curOrgName]["services"][org.service_name][type]["providers"] = providers
+    else:
+        combined = {}
+
+    return jsonify(combined)
