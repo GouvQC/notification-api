@@ -533,7 +533,6 @@ class Service(db.Model, Versioned):
         if self.inbound_shortnumber and self.inbound_shortnumber.active:
             return self.inbound_shortnumber.short_number
 
-
     def get_default_sms_sender(self):
         default_sms_sender = [x for x in self.service_sms_senders if x.is_default]
         return default_sms_sender[0].sms_sender

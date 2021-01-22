@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 from app import db
 from app.dao.email_branding_dao import dao_create_email_branding
 from app.dao.inbound_sms_dao import dao_create_inbound_sms
+from app.dao.inbound_sms_keyword_dao import dao_create_inbound_sms_keyword
 from app.dao.invited_org_user_dao import save_invited_org_user
 from app.dao.invited_user_dao import save_invited_user
 from app.dao.jobs_dao import dao_create_job
@@ -27,6 +28,7 @@ from app.models import (
     ApiKey,
     DailySortedLetter,
     InboundSms,
+    InboundSmsKeyword,
     InboundNumber,
     InboundShortNumber,
     Job,
@@ -442,6 +444,38 @@ def create_inbound_sms(
         provider=provider
     )
     dao_create_inbound_sms(inbound)
+    return inbound
+
+
+def create_inbound_sms_keyword(
+        service,
+        notify_number=None,
+        user_number='+16502532222',
+        provider_date=None,
+        provider_reference=None,
+        content='Hello',
+        provider="sinch",
+        created_at=None
+):
+    if not service.inbound_shortnumber:
+        create_inbound_shortnumber(
+            # create random inbound number
+            notify_number or '1{:10}'.format(random.randint(0, 1e9 - 1)),
+            provider=provider,
+            service_id=service.id
+        )
+
+    inbound = InboundSmsKeyword(
+        service=service,
+        created_at=created_at or datetime.utcnow(),
+        notify_short_number=service.get_inbound_shortnumber(),
+        user_number=user_number,
+        provider_date=provider_date or datetime.utcnow(),
+        provider_reference=provider_reference or 'foo',
+        content=content,
+        provider=provider
+    )
+    dao_create_inbound_sms_keyword(inbound)
     return inbound
 
 
