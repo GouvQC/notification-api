@@ -645,6 +645,7 @@ WERKZEUG_DEBUG_PIN=on</PythonDebugWebServerCommandEnvironment>
     <Compile Include="tests\app\dao\test_ft_billing_dao.py" />
     <Compile Include="tests\app\dao\test_inbound_shortnumbers_dao.py" />
     <Compile Include="tests\app\dao\test_inbound_numbers_dao.py" />
+    <Compile Include="tests\app\dao\test_inbound_sms_keyword_dao.py" />
     <Compile Include="tests\app\dao\test_inbound_sms_dao.py" />
     <Compile Include="tests\app\dao\test_invited_user_dao.py" />
     <Compile Include="tests\app\dao\test_jobs_dao.py" />

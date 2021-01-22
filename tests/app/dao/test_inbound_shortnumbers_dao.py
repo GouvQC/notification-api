@@ -77,7 +77,7 @@ def test_set_inbound_shortnumber_active_flag(notify_db, notify_db_session, sampl
 
     dao_set_inbound_shortnumber_active_flag(sample_service.id, active=active)
 
-    inbound_number = dao_get_inbound_shortnumber_for_service(sample_service.id)
+    inbound_shortnumber = dao_get_inbound_shortnumber_for_service(sample_service.id)
 
     assert inbound_shortnumber.active is active
 
@@ -87,7 +87,8 @@ def test_dao_allocate_shortnumber_for_service(notify_db_session):
     inbound_shortnumber = create_inbound_shortnumber(shortnumber=shortnumber)
     service = create_service()
 
-    updated_inbound_shortnumber = dao_allocate_shortnumber_for_service(service_id=service.id, inbound_shortnumber_id=inbound_shortnumber.id)
+    updated_inbound_shortnumber = dao_allocate_shortnumber_for_service(service_id=service.id,
+                                                                      inbound_shortnumber_id=inbound_shortnumber.id)
     assert service.get_inbound_shortnumber() == shortnumber
     assert updated_inbound_shortnumber.service_id == service.id
 

@@ -1,7 +1,5 @@
 from flask import current_app
 from notifications_utils.statsd_decorators import statsd
-from sqlalchemy import desc, and_
-from sqlalchemy.orm import aliased
 
 from app import db
 from app.dao.dao_utils import transactional
@@ -56,7 +54,8 @@ def _delete_inbound_sms_keyword(datetime_to_delete_from, query_filter):
     # set to nonzero just to enter the loop
     number_deleted = 1
     while number_deleted > 0:
-        number_deleted = InboundSmsKeyword.query.filter(InboundSmsKeyword.id.in_(subquery)).delete(synchronize_session='fetch')
+        number_deleted = InboundSmsKeyword.query.filter(
+            InboundSmsKeyword.id.in_(subquery)).delete(synchronize_session='fetch')
         deleted += number_deleted
 
     return deleted
@@ -79,13 +78,13 @@ def delete_inbound_sms_keyword_older_than_retention():
         n_days_ago = midnight_n_days_ago(f.days_of_retention)
 
         current_app.logger.info("Deleting inbound sms for service id: {}".format(f.service_id))
-        deleted += _delete_inbound_sms(n_days_ago, query_filter=[InboundSmsKeyword.service_id == f.service_id])
+        deleted += _delete_inbound_sms_keyword(n_days_ago, query_filter=[InboundSmsKeyword.service_id == f.service_id])
 
     current_app.logger.info('Deleting inbound sms keyword for services without flexible data retention')
 
     seven_days_ago = midnight_n_days_ago(7)
 
-    deleted += _delete_inbound_sms(seven_days_ago, query_filter=[
+    deleted += _delete_inbound_sms_keyword(seven_days_ago, query_filter=[
         InboundSmsKeyword.service_id.notin_(x.service_id for x in flexible_data_retention),
     ])
 

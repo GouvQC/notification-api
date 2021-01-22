@@ -9,7 +9,8 @@ from app.notifications.process_client_response import validate_callback_data, pr
 from app.dao.services_dao import dao_fetch_service_by_inbound_shortnumber
 from app.models import INBOUND_SMS_KEYWORD_TYPE, SMS_TYPE
 
-shortnumber_keyword_callback_blueprint = Blueprint("shortnumber_keyword_callback", __name__, url_prefix="/notifications/sms/shortnumber_keyword")
+shortnumber_keyword_callback_blueprint = Blueprint("shortnumber_keyword_callback", __name__,
+                                                  url_prefix="/notifications/sms/shortnumber_keyword")
 register_errors(shortnumber_keyword_callback_blueprint)
 
 
@@ -20,7 +21,7 @@ def process_sinch_response():
     data = json.loads(request.data)
     errors = validate_callback_data(
         data=data,
-        fields=['id','from','to','body','received_at'],
+        fields=['id', 'from', 'to', 'body', 'received_at'],
         client_name=client_name
     )
 
@@ -34,7 +35,7 @@ def process_sinch_response():
         return jsonify({
             "status": "ok"
         }), 200
-    
+
     success, errors = process_shortnumber_keyword_client_response(
         service=service,
         short_number=short_number,
@@ -74,4 +75,5 @@ def fetch_potential_service(short_number, provider_name):
 
 def has_inbound_shortnumber_permissions(permissions):
     str_permissions = [p.permission for p in permissions]
+
     return set([INBOUND_SMS_KEYWORD_TYPE, SMS_TYPE]).issubset(set(str_permissions))

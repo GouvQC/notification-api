@@ -49,6 +49,7 @@ from app.models import (
     MOBILE_TYPE,
     EMAIL_TYPE,
     INBOUND_SMS_TYPE,
+    INBOUND_SMS_KEYWORD_TYPE,
     SMS_TYPE,
     LETTER_TYPE,
     NOTIFICATION_STATUS_TYPES_COMPLETED,
@@ -200,6 +201,9 @@ def sample_service(
 
     if permissions and INBOUND_SMS_TYPE in permissions:
         create_inbound_number('12345', service_id=service.id)
+
+    if permissions and INBOUND_SMS_KEYWORD_TYPE in permissions:
+        create_inbound_shortnumber('12345', service_id=service.id)
 
     return service
 
@@ -1150,8 +1154,10 @@ def sample_inbound_shortnumbers(notify_db, notify_db_session, sample_service):
     service = create_service(service_name='sample service 2', check_if_service_exists=True)
     inbound_shortnumbers = list()
     inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='1', provider='sinch'))
-    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='2', provider='sinch', active=False, service_id=service.id))
-    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='3', provider='sinch', service_id=sample_service.id))
+    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='2', provider='sinch', active=False,
+                                                          service_id=service.id))
+    inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='3', provider='sinch',
+                                                          service_id=sample_service.id))
     return inbound_shortnumbers
 
 

@@ -53,14 +53,14 @@ def send_delivery_status_to_service(
 def send_keyword_status_to_service(self, encrypted_status_update):
     status_update = encryption.decrypt(encrypted_status_update)
 
-    status_stop = 'STOP' if ('stop' in status_update['inbound_sms_keyword_content'].lower() or 
+    status_stop = 'STOP' if ('stop' in status_update['inbound_sms_keyword_content'].lower() or
                              'arret' in status_update['inbound_sms_keyword_content'].lower() or
                              'arrêt' in status_update['inbound_sms_keyword_content'].lower()) else None
 
     if status_stop:
         notifications = dao_get_notifications_by_to_field(status_update['service_callback_api_service_id'],
-                                                         status_update['inbound_sms_keyword_user_number'],
-                                                         SMS_TYPE)
+                                                          status_update['inbound_sms_keyword_user_number'],
+                                                          SMS_TYPE)
         if notifications:
             data = {
                 "id": str(notifications[0].id),
@@ -79,6 +79,7 @@ def send_keyword_status_to_service(self, encrypted_status_update):
                 status_update['service_callback_api_bearer_token'],
                 'send_delivery_status_to_service'
             )
+
 
 @notify_celery.task(bind=True, name="send-complaint", max_retries=5, default_retry_delay=300)
 @statsd(namespace="tasks")
@@ -161,6 +162,7 @@ def create_delivery_status_callback_data(notification, service_callback_api):
     }
     return encryption.encrypt(data)
 
+
 def create_shortnumber_keyword_status_callback_data(inbound_sms_keyword, service_callback_api):
     from app import DATETIME_FORMAT, encryption
     data = {
@@ -172,6 +174,7 @@ def create_shortnumber_keyword_status_callback_data(inbound_sms_keyword, service
         "service_callback_api_bearer_token": service_callback_api.bearer_token,
     }
     return encryption.encrypt(data)
+
 
 def create_complaint_callback_data(complaint, notification, service_callback_api, recipient):
     from app import DATETIME_FORMAT, encryption
