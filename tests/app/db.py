@@ -1060,6 +1060,7 @@ def set_up_usage_data(start_date):
     sms_template = create_template(service=service_sms_only, template_type='sms')
     create_annual_billing(service_id=service_sms_only.id, free_sms_fragment_limit=10, financial_year_start=year)
 
+    #service
     create_ft_billing(utc_date=one_week_earlier, service=service, notification_type='sms',
                       template=sms_template_1, billable_unit=2, rate=0.11)
     create_ft_billing(utc_date=start_date, service=service, notification_type='sms',
@@ -1076,6 +1077,7 @@ def set_up_usage_data(start_date):
                       template=letter_template,
                       notifications_sent=2, billable_unit=2, rate=.45, postage='second')
 
+    #service SMS only
     create_ft_billing(utc_date=one_week_earlier, service=service_sms_only, notification_type='sms',
                       template=sms_template, rate=0.11, billable_unit=12)
     create_ft_billing(utc_date=two_days_later, service=service_sms_only, notification_type='sms',
@@ -1083,6 +1085,7 @@ def set_up_usage_data(start_date):
     create_ft_billing(utc_date=one_week_later, service=service_sms_only, notification_type='sms',
                       template=sms_template, billable_unit=2, rate=0.11)
 
+    #service3
     create_ft_billing(utc_date=start_date, service=service_3, notification_type='letter',
                       template=template_3,
                       notifications_sent=2, billable_unit=3, rate=.50, postage='first')
@@ -1093,6 +1096,7 @@ def set_up_usage_data(start_date):
                       template=template_3,
                       notifications_sent=12, billable_unit=5, rate=.65, postage='second')
 
+    #service4
     create_ft_billing(utc_date=two_days_later, service=service_4, notification_type='letter',
                       template=template_4,
                       notifications_sent=15, billable_unit=4, rate=.55, postage='second')
