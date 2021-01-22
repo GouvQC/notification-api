@@ -8,7 +8,6 @@ from app.dao.inbound_sms_keyword_dao import (
     delete_inbound_sms_keyword_older_than_retention,
     dao_get_inbound_sms_keyword_by_id
 )
-from tests.conftest import set_config
 from tests.app.db import create_inbound_sms_keyword, create_service, create_service_data_retention
 
 

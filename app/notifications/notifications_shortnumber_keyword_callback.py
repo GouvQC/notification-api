@@ -10,7 +10,7 @@ from app.dao.services_dao import dao_fetch_service_by_inbound_shortnumber
 from app.models import INBOUND_SMS_KEYWORD_TYPE, SMS_TYPE
 
 shortnumber_keyword_callback_blueprint = Blueprint("shortnumber_keyword_callback", __name__,
-                                                  url_prefix="/notifications/sms/shortnumber_keyword")
+                                                   url_prefix="/notifications/sms/shortnumber_keyword")
 register_errors(shortnumber_keyword_callback_blueprint)
 
 

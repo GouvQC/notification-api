@@ -1155,9 +1155,9 @@ def sample_inbound_shortnumbers(notify_db, notify_db_session, sample_service):
     inbound_shortnumbers = list()
     inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='1', provider='sinch'))
     inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='2', provider='sinch', active=False,
-                                                          service_id=service.id))
+                                                           service_id=service.id))
     inbound_shortnumbers.append(create_inbound_shortnumber(shortnumber='3', provider='sinch',
-                                                          service_id=sample_service.id))
+                                                           service_id=sample_service.id))
     return inbound_shortnumbers
 
 
