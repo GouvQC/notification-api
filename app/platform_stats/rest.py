@@ -149,13 +149,13 @@ def get_usage_for_all_services_by_organisation():
     start_date, end_date = validate_date_range_is_within_a_financial_year(start_date, end_date)
     servicesOrganisation = fetch_usage_by_organisation(organisation_id, start_date, end_date)
 
-
-    if servicesOrganisation :
+    if servicesOrganisation:
         organisations = {}
         services = {}
 
         providers = {}
-        combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date), "Organisations": [organisations]}}
+        combined = {"PGNUtilization": {"StartDate": str(start_date), "EndDate": str(end_date),
+                                       "Organisations": [organisations]}}
         curOrg = ""
         curOrgName = ""
         curServ = ""

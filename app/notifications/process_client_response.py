@@ -86,7 +86,7 @@ def process_sms_client_response(status, provider_reference, client_name):
 
 
 def process_shortnumber_keyword_client_response(service, short_number, from_number, body, received_at,
-                                               provider_ref, client_name):
+                                                provider_ref, client_name):
     success = None
     errors = None
 
@@ -170,7 +170,7 @@ def create_inbound_sms_keyword_object(service, content, from_number, provider_re
     inbound = InboundSmsKeyword(
         service=service,
         notify_short_number=service.get_inbound_shortnumber(),
-        user_number=from_number,
+        user_number=user_number,
         provider_date=date_received,
         provider_reference=provider_ref,
         content=content,

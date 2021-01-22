@@ -88,7 +88,7 @@ def test_dao_allocate_shortnumber_for_service(notify_db_session):
     service = create_service()
 
     updated_inbound_shortnumber = dao_allocate_shortnumber_for_service(service_id=service.id,
-                                                                      inbound_shortnumber_id=inbound_shortnumber.id)
+                                                                       inbound_shortnumber_id=inbound_shortnumber.id)
     assert service.get_inbound_shortnumber() == shortnumber
     assert updated_inbound_shortnumber.service_id == service.id
 
