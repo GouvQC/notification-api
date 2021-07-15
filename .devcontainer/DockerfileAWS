@@ -1,0 +1,20 @@
+FROM python:3.7.10-alpine3.13
+
+RUN apk --update add aws-cli postgresql-client
+RUN apk add --no-cache bash
+
+
+ENV PLATFORMENV=notification-local
+
+ENV AWS_DEFAULT_REGION=ca-central-1
+ENV AWS_SES_OWNER_ACCOUNT=157656100651
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
+ENV PGHOST=postgresql
+ENV DATABASE_NAME=notification_api
+ENV DATABASE_USER=postgres
+
+RUN mkdir /etc/periodic/backup
+ADD ./scripts/db_backup /etc/periodic/backup/db_backup
+RUN chmod +x /etc/periodic/backup/db_backup

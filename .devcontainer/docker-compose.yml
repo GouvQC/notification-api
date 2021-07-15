@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  msg-queue:
+    container_name: pgn-msgqueue
+    image: redis:6.0-rc2-alpine
+    ports:
+      - "6379:6379"
+
+  db-pgn:
+    container_name: pgn-pgsql
+    image: postgres:12.5
+    volumes:
+      - postgres-data-volume:/var/lib/postgresql/data:Z
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=notification_api
+      - POSTGRES_PASSWORD=Postgres
+
+  db-backup:
+    container_name: pgn-pgsql-backup
+    build: 
+      context: ..
+      dockerfile: .devcontainer/DockerfileAWS
+    depends_on:
+            - db-pgn
+
+  app:
+    container_name: pgn-api
+    build: 
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+
+    command: flask run -p 6011 --host=0.0.0.0      
+    #command: gunicorn -c gunicorn_config.py application
+    environment:
+            - PORT=6011
+    ports: 
+      - "6011:6011"
+    depends_on:
+            - msg-queue
+    
+  worker:
+    container_name: pgn-worker
+    build: 
+     context: ..   
+     dockerfile: .devcontainer/Dockerfile
+
+    command: celery -A run_celery.notify_celery worker --pidfile="/tmp/celeryworker.pid" --loglevel=DEBUG --concurrency=2
+    depends_on:
+            - msg-queue
+
+  workerbeat:
+    container_name: pgn-workerbeat
+    build: 
+     context: ..   
+     dockerfile: .devcontainer/Dockerfile
+
+    command: celery -A run_celery.notify_celery beat --pidfile="/tmp/celerybeat.pid" --loglevel=DEBUG
+    depends_on:
+            - msg-queue
+
+volumes:
+  postgres-data-volume:
+    external: true

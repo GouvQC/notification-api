@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export PGPASSWORD=$DATABASE_PASSWORD
+export PGDATABASE=$DATABASE_NAME
+export PGUSER=$DATABASE_USER
+
+pg_dump > /tmp/db-pgn-backup-$(date -I)-$PLATFORMENV.psql
+aws s3 cp /tmp/db-pgn-backup-$(date -I)-$PLATFORMENV.psql s3://pgn-qc-ca-backup
